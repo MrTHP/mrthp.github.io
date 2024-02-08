@@ -18,94 +18,124 @@
 </html>
 
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Simple Pong Game</title>
+<html>
+  <head>
+    <title>Pong Game</title>
     <style>
-        #paddleA, #paddleB {
-            position: absolute;
-            width: 15px;
-            height: 70px;
-            background-color: black;
-        }
-        
-        #ball {
-            position: absolute;
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            background-color: black;
-        }
+      canvas {
+        border: 1px solid #000;
+      }
     </style>
-</head>
-<body>
-    <div id="paddleA"></div>
-    <div id="ball"></div>
-    <div id="paddleB"></div>
-    
+  </head>
+  <body>
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
     <script>
-        const canvasWidth = window.innerWidth;
-        const canvasHeight = window.innerHeight - 40; // Leaving room at bottom for results
-        let ballPosition = { x: canvasWidth / 2, y: canvasHeight / 2 };
-        let ballVelocity = { x: 2, y: 2 };
-        let paddleA = { top: canvasHeight / 2 - 35, left: 50 };
-        let paddleB = { top: canvasHeight / 2 - 35, left: canvasWidth - 70 };
-        let scoreA = 0;
-        let scoreB = 0;
+      // Canvas
+      const canvas = document.getElementById("gameCanvas");
+      const ctx = canvas.getContext("2d");
 
-        document.getElementById('paddleA').style.top = `${paddleA.top}px`;
-        document.getElementById('paddleB').style.top = `${paddleB.top}px`;
-        document.getElementById('ball').style.left = `${ballPosition.x}px`;
-        document.getElementById('ball').style.top = `${ballPosition.y}px`;
+      // Variables
+      let x = canvas.width / 2;
+      let y = canvas.height - 30;
 
-        function update() {
-            ballPosition.x += ballVelocity.x;
-            ballPosition.y += ballVelocity.y;
-            
-            if (ballPosition.y + 7 <= paddleA.top || ballPosition.y + 7 >= paddleA.top + 70) {
-                if (ballPosition.x > paddleA.left && ballPosition.x < paddleA.left + 15) {
-                    ballVelocity.x *= -1.05;
-                    ballVelocity.y *= -1;
-                } else {
-                    scoreB++;
-                    reset();
-                }
-            }
-            
-            if (ballPosition.y + 7 >= canvasHeight - 7 || ballPosition.y + 7 <= 7) {
-                ballVelocity.y *= -1;
-            }
-            
-            if (ballPosition.x + 7 >= canvasWidth - 7) {
-                scoreA++;
-                reset();
-            }
-            
-            document.getElementById('ball').style.left = `${ballPosition.x}px`;
-            document.getElementById('ball').style.top = `${ballPosition.y}px`;
-            document.getElementById('scoreA').innerHTML = scoreA;
-            document.getElementById('scoreB').innerHTML = scoreB;
-            
-            requestAnimationFrame(update);
+      let dx = 2;
+      let dy = -2;
+
+      let paddleHeight = 10;
+      let paddleWidth = 75;
+      let paddleX = (canvas.width - paddleWidth) / 2;
+
+      let rightPressed = false;
+      let leftPressed = false;
+
+      // Draw paddle
+      function drawPaddle() {
+        ctx.beginPath();
+        ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+      }
+
+      // Draw ball
+      function drawBall() {
+        ctx.beginPath();
+        ctx.arc(x, y, 10, 0, Math.PI * 2);
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+      }
+
+      // Draw score
+      function drawScore() {
+        ctx.font = "16px Arial";
+        ctx.fillStyle = "#0095DD";
+        ctx.fillText("Score: " + score, 8, 20);
+      }
+
+      // Draw game over text
+      function drawGameOver() {
+        ctx.font = "30px Arial";
+        ctx.fillStyle = "#0095DD";
+        ctx.fillText("Game Over", canvas.width / 2 - 65, canvas.height / 2 - 10);
+      }
+
+      // Collision detection
+      function collisionDetection() {
+        if (x + dx > canvas.width - 10 || x + dx < 10) {
+          dx = -dx;
+        }
+        if (y + dy < 0) {
+          dy = -dy;
+        } else if (y + dy > canvas.height - 10) {
+          if (x > paddleX && x < paddleX + paddleWidth) {
+            dy = -dy;
+          } else {
+            drawGameOver();
+          }
+        }
+      }
+
+      // Keyboard controls
+      document.addEventListener("keydown", keyDownHandler, false);
+      document.addEventListener("keyup", keyUpHandler, false);
+
+      function keyDownHandler(e) {
+        if (e.keyCode == 39) {
+          rightPressed = true;
+        } else if (e.keyCode == 37) {
+          leftPressed = true;
+        }
+      }
+
+      function keyUpHandler(e) {
+        if (e.keyCode == 39) {
+          rightPressed = false;
+        } else if (e.keyCode == 37) {
+          leftPressed = false;
+        }
+      }
+
+      // Game loop
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawPaddle();
+        drawBall();
+        collisionDetection();
+
+        if (rightPressed && paddleX < canvas.width - paddleWidth) {
+          paddleX += 7;
+        } else if (leftPressed && paddleX > 0) {
+          paddleX -= 7;
         }
 
-        function reset() {
-            ballPosition.x = canvasWidth / 2;
-            ballPosition.y = canvasHeight / 2;
-            ballVelocity.x = Math.random() * 4 + 1;
-            ballVelocity.y = Math.random() * 4 + 1;
-            if (Math.floor(Math.random() * 2) === 0) {
-                ballVelocity.x *= -1;
-            }
-        }
+        x += dx;
+        y += dy;
 
-        update();
+        requestAnimationFrame(draw);
+      }
+
+      draw();
     </script>
-    
-    <h2 style="text-align: center; margin-bottom: 2rem;">Score:</h2>
-    <span id="scoreA" style="float: left; padding-right: 1rem; font-size: 2rem;">0</span>
-    :
-    <span id="scoreB" style="float: right; padding-left: 1rem; font-size: 2rem;">0</span>
-</body>
+  </body>
 </html>
