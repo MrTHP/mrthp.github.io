@@ -132,3 +132,249 @@
     </script>
   </body>
 </html>
+
+
+
+Here is a simple Tetris game written in JavaScript and HTML. It is a single HTML file that you can run in your browser.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border: 1px solid #000;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="tetris" width="300" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('tetris');
+        const context = canvas.getContext('2d');
+
+        // Shape colors
+        const colors = [
+            null,
+            'cyan',
+            'blue',
+            'orange',
+            'yellow',
+            'green',
+            'purple',
+            'red'
+        ];
+
+        // Shape definitions
+        const shapes = [
+            [
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 1, 1, 0],
+                [0, 1, 1, 0]
+            ],
+            [
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 1, 1, 1],
+                [0, 0, 1, 0]
+            ],
+            [
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 1, 1, 1],
+                [0, 1, 0, 0]
+            ],
+            [
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 1, 1, 0],
+                [0, 0, 1, 1]
+            ],
+            [
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 1, 1, 0],
+                [0, 1, 1, 0]
+            ],
+            [
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 1, 0],
+                [0, 1, 1, 1]
+            ],
+            [
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 1, 0, 0],
+                [0, 1, 1, 1]
+            ]
+        ];
+
+        // Game variables
+        let currentShape = getRandomShape();
+        let currentX = 2;
+        let currentY = 0;
+        let currentRotation = 0;
+        let freezed = false;
+        let interval;
+        let score = 0;
+        let gameOver = false;
+
+        // Game grid
+        const grid = [];
+        for (let i = 0; i < 20; i++) {
+            grid[i] = [];
+            for (let j = 0; j < 10; j++) {
+                grid[i][j] = 0;
+            }
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', event => {
+            if (event.keyCode === 37) {
+                event.preventDefault();
+                moveLeft();
+            } else if (event.keyCode === 39) {
+                event.preventDefault();
+                moveRight();
+            } else if (event.keyCode === 40) {
+                event.preventDefault();
+                moveDown();
+            } else if (event.keyCode === 38) {
+                event.preventDefault();
+                rotateShape();
+            }
+        });
+
+        // Game loop
+        function startGame() {
+            if (gameOver) {
+                return;
+            }
+
+            draw();
+            checkCollision();
+            clearLines();
+            if (!freezed) {
+                currentY++;
+            }
+        }
+
+        // Draw the grid and the current shape
+        function draw() {
+            context.fillStyle = '#000';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            context.fillStyle = '#fff';
+            context.font = '30px Verdana';
+            context.fillText('Score: ' + score, 10, 30);
+
+            drawGrid();
+            drawShape();
+        }
+
+        // Draw the grid
+        function drawGrid() {
+            for (let i = 0; i < 20; i++) {
+                for (let j = 0; j < 10; j++) {
+                    if (grid[i][j]) {
+                        context.fillStyle = colors[grid[i][j]];
+                        context.fillRect(j * 30, i * 30, 30, 30);
+                    }
+                }
+            }
+        }
+
+        // Draw the current shape
+        function drawShape() {
+            const shape = shapes[currentShape][currentRotation];
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    if (shape[i][j]) {
+                        context.fillStyle = colors[currentShape];
+                        context.fillRect(currentX * 30 + j * 30, currentY * 30 + i * 30, 30, 30);
+                    }
+                }
+            }
+        }
+
+        // Move the current shape left
+        function moveLeft() {
+            if (currentX > 0) {
+                currentX--;
+            }
+        }
+
+        // Move the current shape right
+        function moveRight() {
+            if (currentX < 7) {
+                currentX++;
+            }
+        }
+
+        // Move the current shape down
+        function moveDown() {
+            if (!checkCollision(1, 0)) {
+                currentY++;
+            } else {
+                freezeShape();
+            }
+        }
+
+        // Rotate the current shape
+        function rotateShape() {
+            const newRotation = currentRotation + 1;
+            if (newRotation < 4) {
+                const shape = shapes[currentShape][newRotation];
+                if (shape[0][0] || shape[0][1] || shape[0][2] || shape[0][3]) {
+                    currentRotation = newRotation;
+                }
+            }
+        }
+
+        // Check for collisions
+        function checkCollision(offsetX, offsetY) {
+            offsetX = offsetX || 0;
+            offsetY = offsetY || 0;
+            const shape = shapes[currentShape][currentRotation];
+
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    if (shape[i][j]) {
+                        const x = currentX + j + offsetX;
+                        const y = currentY + i + offsetY;
+                        if (x < 0 || x >= 10 || y >= 20 || grid[y][x]) {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        // Freeze the current shape
+        function freezeShape() {
+            freezed = true;
+            const shape = shapes[currentShape][currentRotation];
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    if (shape[i][j]) {
+                        grid[currentY + i][currentX + j] = currentShape;
+                    }
+                }
+            }
+       
