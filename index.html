@@ -16,3 +16,96 @@
 <p class="p2"><span class="s1">I'm hosted with GitHub Pages.</span></p>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Pong Game</title>
+    <style>
+        #paddleA, #paddleB {
+            position: absolute;
+            width: 15px;
+            height: 70px;
+            background-color: black;
+        }
+        
+        #ball {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+    <div id="paddleA"></div>
+    <div id="ball"></div>
+    <div id="paddleB"></div>
+    
+    <script>
+        const canvasWidth = window.innerWidth;
+        const canvasHeight = window.innerHeight - 40; // Leaving room at bottom for results
+        let ballPosition = { x: canvasWidth / 2, y: canvasHeight / 2 };
+        let ballVelocity = { x: 2, y: 2 };
+        let paddleA = { top: canvasHeight / 2 - 35, left: 50 };
+        let paddleB = { top: canvasHeight / 2 - 35, left: canvasWidth - 70 };
+        let scoreA = 0;
+        let scoreB = 0;
+
+        document.getElementById('paddleA').style.top = `${paddleA.top}px`;
+        document.getElementById('paddleB').style.top = `${paddleB.top}px`;
+        document.getElementById('ball').style.left = `${ballPosition.x}px`;
+        document.getElementById('ball').style.top = `${ballPosition.y}px`;
+
+        function update() {
+            ballPosition.x += ballVelocity.x;
+            ballPosition.y += ballVelocity.y;
+            
+            if (ballPosition.y + 7 <= paddleA.top || ballPosition.y + 7 >= paddleA.top + 70) {
+                if (ballPosition.x > paddleA.left && ballPosition.x < paddleA.left + 15) {
+                    ballVelocity.x *= -1.05;
+                    ballVelocity.y *= -1;
+                } else {
+                    scoreB++;
+                    reset();
+                }
+            }
+            
+            if (ballPosition.y + 7 >= canvasHeight - 7 || ballPosition.y + 7 <= 7) {
+                ballVelocity.y *= -1;
+            }
+            
+            if (ballPosition.x + 7 >= canvasWidth - 7) {
+                scoreA++;
+                reset();
+            }
+            
+            document.getElementById('ball').style.left = `${ballPosition.x}px`;
+            document.getElementById('ball').style.top = `${ballPosition.y}px`;
+            document.getElementById('scoreA').innerHTML = scoreA;
+            document.getElementById('scoreB').innerHTML = scoreB;
+            
+            requestAnimationFrame(update);
+        }
+
+        function reset() {
+            ballPosition.x = canvasWidth / 2;
+            ballPosition.y = canvasHeight / 2;
+            ballVelocity.x = Math.random() * 4 + 1;
+            ballVelocity.y = Math.random() * 4 + 1;
+            if (Math.floor(Math.random() * 2) === 0) {
+                ballVelocity.x *= -1;
+            }
+        }
+
+        update();
+    </script>
+    
+    <h2 style="text-align: center; margin-bottom: 2rem;">Score:</h2>
+    <span id="scoreA" style="float: left; padding-right: 1rem; font-size: 2rem;">0</span>
+    :
+    <span id="scoreB" style="float: right; padding-left: 1rem; font-size: 2rem;">0</span>
+</body>
+</html>
