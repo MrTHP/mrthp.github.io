@@ -16,7 +16,6 @@
 <p class="p2"><span class="s1">I'm hosted with GitHub Pages.</span></p>
 </body>
 </html>
-
 <!DOCTYPE html>
 <html>
   <head>
@@ -47,6 +46,13 @@
 
       let rightPressed = false;
       let leftPressed = false;
+
+      // Load Bing Wallpaper of the Day
+      const image = new Image();
+      image.src = "https://bingwallpaper.anerg.com/bingwallpaper.php";
+      image.onload = function () {
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      };
 
       // Draw paddle
       function drawPaddle() {
