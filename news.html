@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Discover Local - Linux/Gaming/IA/Serveurs</title>
+  <style>
+    :root {
+      --bg: #1e1e2e; --card: #313244; --text: #cdd6f4;
+      --accent: #89b4fa; --muted: #6c7086; --border: #45475a;
+      --linux: #a6e3a1; --gaming: #f38ba8; --ia: #cba6f7; --serveurs: #fab387;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg); color: var(--text);
+      line-height: 1.6; padding: 1rem; max-width: 1200px; margin: auto;
+    }
+    header {
+      text-align: center; padding: 1.5rem 0; border-bottom: 1px solid var(--border);
+      margin-bottom: 1rem;
+    }
+    h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .subtitle { color: var(--muted); font-size: 0.95rem; }
+
+    .filters {
+      display: flex; gap: 0.5rem; flex-wrap: wrap;
+      justify-content: center; margin: 1rem 0;
+    }
+    .filter-btn {
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--text); padding: 0.4rem 1rem; border-radius: 99px;
+      cursor: pointer; transition: all 0.2s; font-size: 0.9rem;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--accent); color: #111; border-color: var(--accent);
+    }
+    .filter-btn[data-cat="Linux"]      { --accent: var(--linux); }
+    .filter-btn[data-cat="Distrowatch"]{ --accent: var(--linux); }
+    .filter-btn[data-cat="Gaming"]     { --accent: var(--gaming); }
+    .filter-btn[data-cat="IA"]         { --accent: var(--ia); }
+    .filter-btn[data-cat="Serveurs"]   { --accent: var(--serveurs); }
+
+    #news-container { display: grid; gap: 1rem; }
+    .news-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1rem; transition: transform 0.2s;
+    }
+    .news-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+    .news-meta {
+      display: flex; gap: 0.5rem; align-items: center;
+      font-size: 0.8rem; color: var(--muted); margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .category-badge {
+      padding: 0.2rem 0.6rem; border-radius: 99px; font-size: 0.75rem;
+      font-weight: 600; text-transform: uppercase;
+    }
+    .category-badge.Linux      { background: rgba(166,227,161,0.15); color: var(--linux); }
+    .category-badge.Distrowatch{ background: rgba(166,227,161,0.15); color: var(--linux); }
+    .category-badge.Gaming     { background: rgba(243,139,168,0.15); color: var(--gaming); }
+    .category-badge.IA         { background: rgba(203,166,247,0.15); color: var(--ia); }
+    .category-badge.Serveurs   { background: rgba(250,179,135,0.15); color: var(--serveurs); }
+
+    .news-title {
+      font-size: 1.1rem; margin: 0.3rem 0; font-weight: 600;
+    }
+    .news-title a {
+      color: var(--text); text-decoration: none; border-bottom: 1px dashed var(--muted);
+    }
+    .news-title a:hover { border-bottom-color: var(--accent); color: var(--accent); }
+    .news-desc { font-size: 0.95rem; color: #bac2de; margin: 0.5rem 0; }
+    .news-date { font-size: 0.8rem; color: var(--muted); }
+
+    #loading, #error, #empty, #cache-info {
+      text-align: center; padding: 1rem; color: var(--muted);
+    }
+    #loading {
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    }
+    .spinner {
+      width: 28px; height: 28px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #progress-bar-wrap {
+      width: 260px; height: 6px; background: var(--border);
+      border-radius: 99px; overflow: hidden; margin-top: 0.3rem;
+    }
+    #progress-bar {
+      height: 100%; width: 0%; background: var(--accent);
+      transition: width 0.3s ease;
+    }
+    #progress-text { font-size: 0.8rem; color: var(--muted); }
+
+    #cache-info {
+      font-size: 0.8rem;
+      background: rgba(137, 180, 250, 0.1);
+      border-radius: 20px;
+      margin: 0 0 1rem 0;
+    }
+    #load-more {
+      display: block; margin: 1.5rem auto; padding: 0.6rem 2rem;
+      background: var(--accent); color: #111; border: none;
+      border-radius: 99px; font-weight: 600; cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    #load-more:disabled { opacity: 0.5; cursor: not-allowed; }
+    .hidden { display: none !important; }
+
+    @media (max-width: 700px) {
+      .filters { justify-content: flex-start; }
+      h1 { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🗞️ Discover Local</h1>
+    <p class="subtitle">Ton flux news personnalisé : Linux, Gaming, IA, Serveurs</p>
+  </header>
+
+  <div id="cache-info" class="hidden"></div>
+
+  <div class="filters" id="filters">
+    <button class="filter-btn active" data-cat="all">Tous</button>
+    <button class="filter-btn" data-cat="Linux">Linux</button>
+    <button class="filter-btn" data-cat="Distrowatch">Distrowatch</button>
+    <button class="filter-btn" data-cat="Gaming">Gaming</button>
+    <button class="filter-btn" data-cat="IA">IA</button>
+    <button class="filter-btn" data-cat="Serveurs">Serveurs</button>
+  </div>
+
+  <div id="loading">
+    <div class="spinner"></div>
+    <span>Chargement des news…</span>
+    <div id="progress-bar-wrap">
+      <div id="progress-bar"></div>
+    </div>
+    <span id="progress-text">0 / 0 flux</span>
+  </div>
+  <div id="error" class="hidden">⚠️ Erreur de chargement. Vérifie ta connexion ou les flux RSS.</div>
+  <div id="empty" class="hidden">Aucune news trouvée pour ce filtre.</div>
+
+  <div id="news-container"></div>
+  <button id="load-more" class="hidden">Charger plus</button>
+
+  <script>
+    // ========= CONFIGURATION =========
+    // corsproxy.io est plus rapide et stable qu'allorigins.win
+    const CORS_PROXIES = [
+      'https://corsproxy.io/?',
+      'https://api.allorigins.win/raw?url='
+    ];
+    const FETCH_TIMEOUT_MS  = 6000;   // Abandon après 6 s par flux
+    const ITEMS_PER_PAGE    = 15;
+    const MAX_ITEMS_PER_FEED = 10;
+    const CACHE_KEY         = 'discover_news_cache';
+    const CACHE_DURATION    = 30 * 60 * 1000; // 30 minutes (au lieu de 10)
+
+    const feeds = {
+      Linux: [
+        'https://www.phoronix.com/rss.php',
+        'https://www.linuxjournal.com/feed',
+        'https://archlinux.org/feeds/news/',
+        'https://linuxiac.com/feed/',
+        'https://www.linuxcompatible.org/rss.xml',
+        'https://www.linuxadictos.com/feed'
+      ],
+      Distrowatch: [
+        'https://distrowatch.com/news/dwd.xml'
+      ],
+      Gaming: [
+        'https://www.gamingonlinux.com/article_rss.php',
+        'https://www.pcgamer.com/feed/',
+        'https://www.rockpapershotgun.com/feed'
+      ],
+      IA: [
+        'https://huggingface.co/blog/feed.xml',
+        'https://ai.googleblog.com/feeds/posts/default',
+        'https://openai.com/news/feed/'
+      ],
+      Serveurs: [
+        'https://www.serverless.com/blog/feed',
+        'https://kubernetes.io/feed.xml',
+        'https://www.docker.com/blog/feed/'
+      ]
+    };
+
+    // ========= ÉTAT GLOBAL =========
+    let allNews        = [];
+    let filteredNews   = [];
+    let currentPage    = 1;
+    let currentCategory = 'all';
+    let totalFeeds     = 0;
+    let loadedFeeds    = 0;
+
+    // ========= UTILITAIRES =========
+    function parseRSS(xml, category) {
+      const items  = [];
+      const parser = new DOMParser();
+      const doc    = parser.parseFromString(xml, 'text/xml');
+      const entries = Array.from(doc.querySelectorAll('item, entry')).slice(0, MAX_ITEMS_PER_FEED);
+
+      for (const entry of entries) {
+        const title = entry.querySelector('title')?.textContent?.trim() || 'Sans titre';
+        let link    = entry.querySelector('link')?.textContent?.trim()
+                   || entry.querySelector('link')?.getAttribute('href')
+                   || '';
+        if (!link || link === '#') continue;
+
+        const descEl = entry.querySelector('description, summary, content\\:encoded');
+        let description = descEl?.textContent || '';
+        description = description.replace(/<[^>]*>/g, '').trim().slice(0, 200);
+        if (description.length === 200) description += '…';
+
+        const pubDate = entry.querySelector('pubDate, published, updated')?.textContent;
+        const date    = pubDate ? new Date(pubDate) : new Date(0);
+
+        let source = '';
+        try { source = new URL(link).hostname.replace('www.', ''); } catch (_) { source = link; }
+
+        items.push({ title, link, description, date, source, category });
+      }
+      return items;
+    }
+
+    // Fetch avec timeout et fallback sur un second proxy
+    async function fetchWithTimeout(url, proxyIndex = 0) {
+      if (proxyIndex >= CORS_PROXIES.length) throw new Error('Tous les proxies ont échoué');
+      const proxy      = CORS_PROXIES[proxyIndex];
+      const controller = new AbortController();
+      const timer      = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+      try {
+        const res = await fetch(proxy + encodeURIComponent(url), { signal: controller.signal });
+        clearTimeout(timer);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.text();
+      } catch (err) {
+        clearTimeout(timer);
+        // Si le premier proxy échoue, tenter le suivant
+        if (proxyIndex + 1 < CORS_PROXIES.length) {
+          console.warn(`⚠️ Proxy ${proxy} KO pour ${url}, fallback…`);
+          return fetchWithTimeout(url, proxyIndex + 1);
+        }
+        throw err;
+      }
+    }
+
+    async function fetchFeed(url, category) {
+      try {
+        const xml = await fetchWithTimeout(url);
+        return parseRSS(xml, category);
+      } catch (err) {
+        console.warn(`❌ ${url}:`, err.message);
+        return [];
+      }
+    }
+
+    // ========= CACHE =========
+    function getCachedNews() {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (!raw) return null;
+        const { timestamp, news } = JSON.parse(raw);
+        if (Date.now() - timestamp < CACHE_DURATION) {
+          return news.map(item => ({ ...item, date: new Date(item.date) }));
+        }
+      } catch (_) {}
+      return null;
+    }
+
+    function saveCache(news) {
+      try {
+        const toStore = news.map(item => ({ ...item, date: item.date.toISOString() }));
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), news: toStore }));
+      } catch (_) {}
+    }
+
+    // ========= AFFICHAGE =========
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, c =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])
+      );
+    }
+
+    function renderNews(page = 1) {
+      const container = document.getElementById('news-container');
+      const end       = page * ITEMS_PER_PAGE;
+      const toShow    = filteredNews.slice(0, end);
+
+      if (page === 1) container.innerHTML = '';
+
+      const start = (page - 1) * ITEMS_PER_PAGE;
+      for (const item of toShow.slice(start)) {
+        const dateStr = isNaN(item.date)
+          ? ''
+          : item.date.toLocaleDateString('fr-FR', {
+              day: '2-digit', month: 'short',
+              hour: '2-digit', minute: '2-digit'
+            });
+        container.insertAdjacentHTML('beforeend', `
+          <article class="news-card" data-category="${escapeHtml(item.category)}">
+            <div class="news-meta">
+              <span class="category-badge ${escapeHtml(item.category)}">${escapeHtml(item.category)}</span>
+              <span>•</span>
+              <span>${escapeHtml(item.source)}</span>
+              ${dateStr ? `<span>•</span><time class="news-date">${dateStr}</time>` : ''}
+            </div>
+            <h3 class="news-title">
+              <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer">
+                ${escapeHtml(item.title)}
+              </a>
+            </h3>
+            ${item.description ? `<p class="news-desc">${escapeHtml(item.description)}</p>` : ''}
+          </article>
+        `);
+      }
+
+      document.getElementById('load-more').classList.toggle('hidden', end >= filteredNews.length);
+      document.getElementById('empty').classList.toggle('hidden', filteredNews.length > 0);
+    }
+
+    function applyFilter() {
+      filteredNews = currentCategory === 'all'
+        ? [...allNews]
+        : allNews.filter(n => n.category === currentCategory);
+      currentPage = 1;
+      renderNews(1);
+    }
+
+    function addArticles(newItems) {
+      if (!newItems.length) return;
+      const existingLinks = new Set(allNews.map(i => i.link));
+      const unique = newItems.filter(i => !existingLinks.has(i.link));
+      if (!unique.length) return;
+      allNews.push(...unique);
+      allNews.sort((a, b) => b.date - a.date);
+      applyFilter();
+    }
+
+    // ========= BARRE DE PROGRESSION =========
+    function updateProgress() {
+      loadedFeeds++;
+      const pct = totalFeeds ? Math.round((loadedFeeds / totalFeeds) * 100) : 0;
+      document.getElementById('progress-bar').style.width  = pct + '%';
+      document.getElementById('progress-text').textContent = `${loadedFeeds} / ${totalFeeds} flux`;
+    }
+
+    // ========= CHARGEMENT PARALLÈLE =========
+    async function loadAllFeeds() {
+      // Construire la liste à plat de tous les flux
+      const tasks = [];
+      for (const [category, urls] of Object.entries(feeds)) {
+        for (const url of urls) tasks.push({ url, category });
+      }
+      totalFeeds = tasks.length;
+      document.getElementById('progress-text').textContent = `0 / ${totalFeeds} flux`;
+
+      let firstLoaded = false;
+
+      // Lancer TOUS les fetches en même temps et traiter chaque résultat dès qu'il arrive
+      await Promise.allSettled(
+        tasks.map(({ url, category }) =>
+          fetchFeed(url, category).then(items => {
+            updateProgress();
+            if (items.length) {
+              addArticles(items);
+              if (!firstLoaded) {
+                document.getElementById('loading').classList.add('hidden');
+                firstLoaded = true;
+              }
+            }
+          })
+        )
+      );
+
+      // Sauvegarde cache après chargement complet
+      if (allNews.length) saveCache(allNews);
+
+      // Si aucun flux n'a répondu
+      if (!firstLoaded && allNews.length === 0) {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('error').classList.remove('hidden');
+      } else {
+        document.getElementById('loading').classList.add('hidden');
+      }
+    }
+
+    // ========= INITIALISATION =========
+    async function init() {
+      // Cache instantané
+      const cached = getCachedNews();
+      if (cached && cached.length) {
+        allNews = cached;
+        applyFilter();
+        document.getElementById('loading').classList.add('hidden');
+        const info = document.getElementById('cache-info');
+        info.textContent = '📦 Affichage du cache (mise à jour en arrière-plan…)';
+        info.classList.remove('hidden');
+        setTimeout(() => info.classList.add('hidden'), 4000);
+      }
+
+      // Filtres
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.onclick = () => {
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentCategory = btn.dataset.cat;
+          applyFilter();
+        };
+      });
+
+      // Charger plus
+      document.getElementById('load-more').onclick = () => {
+        currentPage++;
+        renderNews(currentPage);
+      };
+
+      // Chargement réseau en parallèle
+      loadAllFeeds().catch(err => {
+        console.error(err);
+        if (!allNews.length) {
+          document.getElementById('loading').classList.add('hidden');
+          document.getElementById('error').classList.remove('hidden');
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

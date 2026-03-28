@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debian Trixie Architect - Guide d'Installation Manuel</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --accent: #0f3460;
+            --highlight: #e94560;
+            --text-primary: #eee;
+            --text-secondary: #bbb;
+            --code-bg: #0d1117;
+            --success: #2ea043;
+            --warning: #d29922;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--bg-secondary), var(--accent));
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        h1 {
+            color: var(--highlight);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+        }
+        
+        .info-card {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--highlight);
+        }
+        
+        .module {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .module-header {
+            background: var(--accent);
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        
+        .module-header:hover {
+            background: #1a4a7a;
+        }
+        
+        .module-title {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+        
+        .module-icon {
+            font-size: 1.5em;
+        }
+        
+        .module-content {
+            padding: 20px;
+            display: none;
+        }
+        
+        .module-content.active {
+            display: block;
+        }
+        
+        .description {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+        
+        .code-block {
+            background: var(--code-bg);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            position: relative;
+            overflow-x: auto;
+            border: 1px solid #30363d;
+        }
+        
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            color: #c9d1d9;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--accent);
+            color: var(--text-primary);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background: var(--highlight);
+        }
+        
+        .copy-btn.copied {
+            background: var(--success);
+        }
+        
+        .warning {
+            background: rgba(210, 153, 34, 0.15);
+            border: 1px solid var(--warning);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            color: var(--warning);
+        }
+        
+        .success {
+            background: rgba(46, 160, 67, 0.15);
+            border: 1px solid var(--success);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            color: var(--success);
+        }
+        
+        .prerequisites {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .prerequisites ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .prerequisites li {
+            margin: 8px 0;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 40px;
+        }
+        
+        .tag {
+            display: inline-block;
+            background: var(--accent);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            .container { padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏗️ Debian Trixie Architect</h1>
+            <p class="subtitle">Guide d'installation manuel - Version 8.1</p>
+            <div style="margin-top: 15px;">
+                <span class="tag">Debian Testing</span>
+                <span class="tag">GPU Drivers</span>
+                <span class="tag">Gaming</span>
+                <span class="tag">AI Stack</span>
+                <span class="tag">Auto-hébergement</span>
+            </div>
+        </header>
+
+        <div class="prerequisites">
+            <h2>⚠️ Prérequis</h2>
+            <ul>
+                <li>Machine sous Debian (version actuelle ou à mettre à jour)</li>
+                <li>Accès <strong>root</strong> ou <code>sudo</code></li>
+                <li>Connexion Internet stable</li>
+                <li>Espace disque suffisant (minimum 20GB recommandé)</li>
+                <li><strong>Attention :</strong> Ces commandes modifient votre système</li>
+                <li><strong>Attention :</strong> Dans votre terminal faite : sudo su   et appuyer sur entrée et ensuite les étapes suivante ci-dessous</li>
+            </ul>
+        </div>
+
+        <!-- MODULE 1 -->
+        <div class="module">
+            <div class="module-header" onclick="toggleModule(this)">
+                <span class="module-title">1️⃣ Mise à jour Système (Trixie + Backports)</span>
+                <span class="module-icon">📦</span>
+            </div>
+            <div class="module-content">
+                <p class="description">Configure les dépôts Debian Trixie (Testing) avec sécurité et backports.</p>
+                <div class="warning">⚠️ Cette opération modifie /etc/apt/sources.list - sauvegardez votre configuration actuelle !</div>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+<pre>cp /etc/apt/sources.list /etc/apt/sources.list.bak_$(date +%s)
+
+cat &lt;&lt;EOF &gt; /etc/apt/sources.list
+deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+deb-src http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+deb http://deb.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+deb http://deb.debian.org/debian trixie-backports main contrib non-free non-free-firmware
+EOF
+
+apt-get update && apt-get install -y curl wget apt-transport-https software-properties-common build-essential git</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE 2 -->
+        <div class="module">
+            <div class="module-header" onclick="toggleModule(this)">
+                <span class="module-title">2️⃣ Pilotes GPU</span>
+                <span class="module-icon">🎮</span>
+            </div>
+            <div class="module-content">
+                <p class="description">Choisissez selon votre carte graphique (NVIDIA, AMD ou Intel).</p>
+                
+                <h3>NVIDIA (RTX 4060)</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+<pre>apt install -y extrepo linux-headers-$(uname -r)
+extrepo enable nvidia-cuda
+apt update
+apt install -y nvidia-driver firmware-misc-nonfree</pre>
+                </div>
+                
+                <h3>AMD</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+<pre>dpkg --add-architecture i386
+apt update
+apt install -y firmware-amd-graphics libgl1-mesa-dri:i386 libglx-mesa0:i386 mesa-vulkan-drivers:i386 libgbm1:i386</pre>
+                </div>
+                
+                <h3>Intel (Moderne - Gen 8+)</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+<pre>apt install -y libgl1-mesa-dri libglx-mesa0 mesa-vulkan-drivers intel-media-va-driver-non-free</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE 3 -->
+        <div class="module">
+            <div class="module-header" onclick="toggleModule(this)">
+                <span class="module-title">3️⃣ Optimisation Laptop</span>
+                <span class="module-icon">🔋</span>
+            </div>
+            <div class="module-content">
+                <p class="description">Gestion énergie, microcode et thermique.</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+<pre>apt install -y intel-microcode tlp tlp-rdw thermald
+systemctl enable --now tlp
+systemctl enable --now thermald</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE 4 -->
+        <div class="module">
+            <div class="module-header" onclick="toggleModule(this)">
+                <span class="module-title">4️⃣ Gaming Setup</span>
+                <span class="module-icon">🕹️</span>
+            </div>
+            <div class="module-content">
+                <p class="description">Steam, Flatpak et outils de gaming.</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+<pre># Architecture 32-bit pour Steam
+dpkg --add-architecture i386
+apt update
+apt install -y steam-installer
+
+# Flatpak + Flathub
+apt install -y flatpak plasma-discover-backend-flatpak gnome-software-plugin-flatpak
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+# ProtonPlus (gestionnaire Proton)
+flatpak install -y flathub com.vysp3r.ProtonPlus</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE 5 -->
+        <div class="module">
+            <div class="module-header" onclick="toggleModule(this)">
+                <span class="module-title">5️⃣ Navigateurs Web</span>
+                <span class="module-icon">🌐</span>
+            </div>
+            <div class="module-content">
+                <p class="description">Installation des navigateurs dans le dossier utilisateur.</p>
+                
+                <h3>Google Chrome</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+<pre>wget -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+apt install -y /tmp/chrome.deb
+rm /tmp/chrome.deb</pre>
+                </div>
+                
+                <h3>Zen Browser</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+<pre>cd ~
+wget -O /tmp/zen.tar.xz 'https://github.com/zen-browser/desktop/releases/latest/download/zen.linux-x86_64.tar.xz'
+tar -xJf /tmp/zen.tar.xz -C ~
+mv ~/zen ~/zen-browser
+
+cat &gt; ~/.local/share/applications/zen-browser.desktop &lt;&lt;EOL
+[Desktop Entry]
+Version=1.0
+Name=Zen Browser
+Exec=$HOME/zen-browser/zen %u
+Icon=$HOME/zen-browser/browser/chrome/icons/default/default128.png
+Type=Application
+Categories=Network;WebBrowser;
+Terminal=false
+EOL
+chmod +x ~/.local/share/applications/zen-browser.desktop</pre>
+                </div>
+                
+                <h3>Tor Browser</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+<pre>apt install -y torbrowser-launcher</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE 6 -->
+        <div class="module">
+            <div class="module-header" onclick="toggleModule(this)">
+                <span class="module-title">6️⃣ Applications Sociales</span>
+                <span class="module-icon">💬</span>
+            </div>
+            <div class="module-content">
+                <p class="description">Discord et Telegram (installations tarball).</p>
+                
+                <h3>Discord</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+<pre>cd ~
+wget -O /tmp/discord.tar.gz 'https://discord.com/api/download?platform=linux&format=tar.gz'
+tar -xzvf /tmp/discord.tar.gz -C ~
+
+cat &gt; ~/.local/share/applications/discord.desktop &lt;&lt;EOL
+[Desktop Entry]
+Name=Discord
+Exec=$HOME/Discord/Discord
+Icon=$HOME/Discord/discord.png
+Type=Application
+Categories=Network;InstantMessaging;
+EOL</pre>
+                </div>
+                
+                <h3>Telegram</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+<pre>cd ~
+wget -O /tmp/telegram.tar.xz 'https://telegram.org/dl/desktop/linux'
+tar -xJvf /tmp/telegram.tar.xz -C ~
+
+cat &gt; ~/.local/share/applications/telegram.desktop &lt;&lt;EOL
+[Desktop Entry]
+Name=Telegram
+Exec=$HOME/Telegram/Telegram
+Icon=$HOME/Telegram/Telegram.png
+Type=Application
+Categories=Network;InstantMessaging;
+EOL</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE 7 -->
+        <div class="module">
+            <div class="module-header" onclick="toggleModule(this)">
+                <span class="module-title">7️⃣ Logiciels Utiles</span>
+                <span class="module-icon">🛠️</span>
+            </div>
+            <div class="module-content">
+                <p class="description">Applications courantes et outils de développement.</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+<pre># VLC, GIMP, qBittorrent, Fastfetch
+apt install -y vlc gimp qbittorrent fastfetch
+
+# Visual Studio Code
+wget -O /tmp/vscode.deb 'https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64'
+apt install -y /tmp/vscode.deb
+
+# OBS Studio (Flatpak)
+flatpak install -y flathub com.obsproject.Studio</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE 8 -->
+        <div class="module">
+            <div class="module-header" onclick="toggleModule(this)">
+                <span class="module-title">8️⃣ AI Stack (Docker + Ollama + OpenWebUI)</span>
+                <span class="module-icon">🤖</span>
+            </div>
+            <div class="module-content">
+                <p class="description">Stack IA complète avec support NVIDIA/AMD/CPU.</p>
+                <div class="warning">⚠️ Nécessite Docker et une configuration GPU adaptée</div>
+                
+                <h3>Installation Docker</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+<pre>apt-get update && apt-get install -y ca-certificates curl gnupg
+install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+chmod a+r /etc/apt/keyrings/docker.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+usermod -aG docker $USER</pre>
+                </div>
+                
+                <h3>Configuration NVIDIA Container Toolkit</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+<pre>curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | sed "s#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g" | tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+apt-get update && apt-get install -y nvidia-container-toolkit
+nvidia-ctk runtime configure --runtime=docker
+systemctl restart docker</pre>
+                </div>
+                
+                <h3>Docker Compose (AI Stack)</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+<pre>mkdir -p /opt/ai-stack/{searxng,ollama,open-webui}
+cd /opt/ai-stack
+
+cat &gt; docker-compose.yml &lt;&lt;EOF
+services:
+  ollama:
+    image: ollama/ollama:latest
+    restart: always
+    ports: ["11434:11434"]
+    volumes: [ollama:/root/.ollama]
+    deploy:
+      resources:
+        reservations:
+          devices: [{driver: nvidia, count: 1, capabilities: [gpu]}]
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    restart: always
+    ports: ["3000:8080"]
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - SEARXNG_QUERY_URL=http://searxng:8080/search?q=
+    volumes: [open-webui:/app/backend/data]
+    depends_on: [ollama, searxng]
+  searxng:
+    image: searxng/searxng:latest
+    restart: always
+    ports: ["8080:8080"]
+    volumes: [./searxng:/etc/searxng]
+    environment:
+      - BASE_URL=http://localhost:8080/
+volumes: {ollama: {}, open-webui: {}}
+EOF
+
+docker compose up -d</pre>
+                </div>
+                
+                <h3>Perplexica (Optionnel - Port 7000)</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+<pre>docker run -d \
+  --name perplexica \
+  --restart always \
+  -p 7000:3000 \
+  --add-host=host.docker.internal:host-gateway \
+  -e SEARXNG_API_URL=http://host.docker.internal:8080 \
+  -e OLLAMA_API_URL=http://host.docker.internal:11434 \
+  -v perplexica-data:/home/perplexica/data \
+  itzcrazykns1337/perplexica:slim-latest</pre>
+                </div>
+                
+                <div class="success">
+                    ✅ Services disponibles :<br>
+                    • OpenWebUI: http://localhost:3000<br>
+                    • SearXNG: http://localhost:8080<br>
+                    • Perplexica: http://localhost:7000 (si installé)<br>
+                    • Ollama API: http://localhost:11434
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE 9 -->
+        <div class="module">
+            <div class="module-header" onclick="toggleModule(this)">
+                <span class="module-title">9️⃣ Upgrade Kernel (Backports)</span>
+                <span class="module-icon">⚙️</span>
+            </div>
+            <div class="module-content">
+                <p class="description">Installer le dernier kernel depuis les backports.</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+<pre>apt -t trixie-backports install -y linux-image-amd64 linux-headers-amd64</pre>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Script original : trixie_architect.sh v8.1</p>
+            <p>Page générée pour installation manuelle - Adapté pour MrTHP</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                💡 Astuce : Copiez chaque section dans un fichier texte, puis exécutez avec <code>bash script.sh</code>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        function toggleModule(header) {
+            const content = header.nextElementSibling;
+            content.classList.toggle('active');
+            header.querySelector('.module-icon').textContent = 
+                content.classList.contains('active') ? '🔼' : '🔽';
+        }
+        
+        async function copyCode(btn) {
+            const pre = btn.nextElementSibling;
+            const text = pre.textContent;
+            
+            try {
+                await navigator.clipboard.writeText(text);
+                btn.textContent = '✓ Copié !';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copier';
+                    btn.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                console.error('Erreur copie:', err);
+                btn.textContent = 'Erreur';
+            }
+        }
+    </script>
+</body>
+</html>

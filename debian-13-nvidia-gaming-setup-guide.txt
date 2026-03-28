@@ -1,0 +1,167 @@
+# General Gaming Setup for Debian 13 "Trixie"
+
+This guide is tailored for users running **Debian 13 "Trixie"**.
+
+
+------------------------------------------------------------------------------------------------------------
+sudo nano /etc/apt/sources.list
+
+et met tout ca a la place
+
+### Sources.list
+
+
+deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+deb-src http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
+
+deb http://deb.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+deb-src http://deb.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
+
+deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+deb-src http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
+
+# Backports
+deb http://deb.debian.org/debian trixie-backports main contrib non-free non-free-firmware
+deb-src http://deb.debian.org/debian trixie-backports main contrib non-free non-free-firmware
+
+
+------------------------------------------------------------------------------------------------------------
+
+### Install Liquorix Kernel 
+
+curl -s 'https://liquorix.net/install-liquorix.sh' | sudo bash
+
+
+### Nvidia Drivers Install (575/580)
+
+sudo apt install -y extrepo
+
+sudo extrepo enable nvidia-cuda
+
+sudo apt update
+
+sudo apt install -y nvidia-driver nvidia-cuda-toolkit nvidia-settings
+
+
+
+### Add 32-bit platform support
+
+This ensures 32bit drivers will be installed which are required for Steam later.
+
+
+sudo dpkg --add-architecture i386
+
+sudo apt update && sudo apt upgrade -y
+
+
+### Install nvidia-smi
+
+
+wget https://us.download.nvidia.com/XFree86/Linux-x86_64/580.65.06/NVIDIA-Linux-x86_64-580.65.06.run -O NVIDIA.run
+
+chmod +x NVIDIA.run
+
+./NVIDIA.run --extract-only
+
+sudo cp NVIDIA-Linux-x86_64-580.65.06/nvidia-smi /usr/local/bin/
+
+sudo chmod +x /usr/local/bin/nvidia-smi
+
+rm -rf NVIDIA-Linux-x86_64-580.65.06 NVIDIA.run
+
+
+
+### Install solaar
+
+
+sudo apt install solaar
+
+sudo nano /etc/udev/rules.d/42-logitech-unify-permissions.rules
+
+sudo udevadm control --reload-rules
+
+sudo udevadm trigger
+
+
+### Install Brave
+
+curl -fsS https://dl.brave.com/install.sh | sh
+
+
+### Install Docker Searxng
+
+
+Solution en deux étapes très simples
+1️⃣ docker.sh –  installe Docker, active le service, ajoute l’utilisateur au groupe docker et redémarre la machine.
+2️⃣ searxng.sh – à exécuter après le redémarrage (le groupe docker est alors actif) : il télécharge l’image SearXNG, crée le docker‑compose.yml, démarre le stack et ouvre automatiquement la page d’accueil dans le navigateur par défaut.
+
+### Install build tools
+
+sudo apt install build-essential -y
+
+
+### Reboot
+
+sudo reboot
+
+
+# Gaming Setup
+
+
+
+### Install Steam
+
+sudo apt install steam-installer -y
+
+
+### Installing Gamemode for on-demand performance
+
+sudo apt install gamemode -y
+
+
+### Install Flatpak
+
+
+sudo apt install flatpak plasma-discover-backend-flatpak -y     <--- si ta kde
+
+sudo apt install flatpak gnome-software-plugin-flatpak -y    <--- si ta gnome
+
+sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+
+### How to install an App from the command line
+
+sudo flatpak install flathub com.vysp3r.ProtonPlus
+
+sudo flatpak install flathub org.dupot.easyflatpak
+
+
+
+# System tweaks
+
+
+
+### Makes the system prefer using RAM over disk swap
+
+sudo sysctl vm.swappiness=10
+
+echo 'vm.swappiness=10' | sudo tee /etc/sysctl.d/99-swappiness.conf > /dev/null
+
+
+# 1) Download udev openrgb rules
+
+curl -fsSL https://openrgb.org/releases/release_0.9/60-openrgb.rules -o /tmp/60-openrgb.rules
+
+
+# 2) Install rules on the system (Debian/Ubuntu utilisent /usr/lib/udev/rules.d/)
+
+sudo install -m 0644 /tmp/60-openrgb.rules /usr/lib/udev/rules.d/60-openrgb.rules
+
+
+# 3) Reload udev
+
+sudo udevadm control --reload-rules
+
+sudo udevadm trigger
+
+

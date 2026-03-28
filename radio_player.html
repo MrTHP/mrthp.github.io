@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 Radio Player - DNB & Electronic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: moveGrid 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes moveGrid {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(50px, 50px) rotate(360deg); }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        .stations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .station-card {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .station-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .station-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .station-card:hover::before {
+            opacity: 1;
+        }
+
+        .station-card.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: white;
+            transform: scale(1.05);
+        }
+
+        .station-name {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .station-genre {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .player-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 20px;
+            margin-top: 20px;
+        }
+
+        .now-playing {
+            text-align: center;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 500;
+            min-height: 30px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-stop {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: white;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .visualizer {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 4px;
+            height: 60px;
+            margin-top: 15px;
+        }
+
+        .bar {
+            width: 8px;
+            background: linear-gradient(to top, #667eea, #f093fb);
+            border-radius: 4px;
+            animation: wave 1s ease-in-out infinite;
+        }
+
+        .bar:nth-child(1) { animation-delay: 0s; }
+        .bar:nth-child(2) { animation-delay: 0.1s; }
+        .bar:nth-child(3) { animation-delay: 0.2s; }
+        .bar:nth-child(4) { animation-delay: 0.3s; }
+        .bar:nth-child(5) { animation-delay: 0.4s; }
+        .bar:nth-child(6) { animation-delay: 0.3s; }
+        .bar:nth-child(7) { animation-delay: 0.2s; }
+        .bar:nth-child(8) { animation-delay: 0.1s; }
+
+        @keyframes wave {
+            0%, 100% { height: 20%; }
+            50% { height: 100%; }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .stations-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Radio Player</h1>
+        <p class="subtitle">DNB, Jungle, Psytrance & More</p>
+
+        <div class="stations-grid" id="stationsGrid">
+            <div class="station-card" data-url="https://phoebe.streamerr.co:3650/;?type=http&nocache=33" data-name="Jungle Planet Radio">
+                <div class="station-name">🌴 Jungle Planet</div>
+                <div class="station-genre">Jungle / Breakbeat</div>
+            </div>
+
+            <div class="station-card" data-url="http://www.partyvibe.com:8010/stream" data-name="Psychedelic Trance">
+                <div class="station-name">🌀 Psychedelic Trance</div>
+                <div class="station-genre">Psytrance / Goa</div>
+            </div>
+
+            <div class="station-card" data-url="https://azura.drmnbss.org/listen/dnbradio/radio.mp3" data-name="DnBradio.com">
+                <div class="station-name">⚡ DnBradio.com</div>
+                <div class="station-genre">Drum & Bass</div>
+            </div>
+
+            <div class="station-card" data-url="https://www.partyviberadio.com:8061/stream" data-name="Partyvibe DnB">
+                <div class="station-name">🎉 Partyvibe DnB</div>
+                <div class="station-genre">Drum & Bass</div>
+            </div>
+
+            <div class="station-card" data-url="http://stream.laut.fm/goa-channel-one" data-name="GOA Channel ONE">
+                <div class="station-name">🧘 GOA Channel ONE</div>
+                <div class="station-genre">Goa / Psytrance</div>
+            </div>
+        </div>
+
+        <div class="player-controls">
+            <div class="now-playing" id="nowPlaying">Sélectionne une station pour commencer</div>
+
+            <div class="control-buttons">
+                <button class="btn hidden" id="playBtn">▶️ Lecture</button>
+                <button class="btn btn-stop hidden" id="stopBtn">⏹️ Stop</button>
+            </div>
+
+            <div class="volume-control">
+                <span>🔉</span>
+                <input type="range" id="volumeSlider" min="0" max="100" value="100">
+                <span>🔊</span>
+            </div>
+
+            <div class="visualizer hidden" id="visualizer">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="audioPlayer" preload="none"></audio>
+
+    <script>
+        const stationsGrid = document.getElementById('stationsGrid');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const nowPlaying = document.getElementById('nowPlaying');
+        const playBtn = document.getElementById('playBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const visualizer = document.getElementById('visualizer');
+
+        let currentStation = null;
+        let isPlaying = false;
+
+        // Gestion de la sélection de station
+        stationsGrid.addEventListener('click', (e) => {
+            const card = e.target.closest('.station-card');
+            if (!card) return;
+
+            const url = card.dataset.url;
+            const name = card.dataset.name;
+
+            // Désactiver toutes les cartes
+            document.querySelectorAll('.station-card').forEach(c => c.classList.remove('active'));
+
+            // Activer la carte sélectionnée
+            card.classList.add('active');
+
+            // Si c'est une playlist M3U, on doit la gérer différemment
+            if (url.endsWith('.m3u')) {
+                // Pour DNB Radio, extraire l'URL du stream depuis le M3U
+                // En production, vous devriez fetch le M3U et parser l'URL
+                currentStation = {
+                    url: 'https://dnbradio.com/dnbhi.mp3', // URL directe
+                    name: name
+                };
+            } else {
+                currentStation = { url, name };
+            }
+
+            nowPlaying.textContent = `🎧 ${name}`;
+            playBtn.classList.remove('hidden');
+            stopBtn.classList.add('hidden');
+            visualizer.classList.add('hidden');
+
+            if (isPlaying) {
+                playStation();
+            }
+        });
+
+        // Lecture de la station
+        playBtn.addEventListener('click', playStation);
+
+        function playStation() {
+            if (!currentStation) return;
+
+            audioPlayer.src = currentStation.url;
+            audioPlayer.volume = volumeSlider.value / 100;
+
+            audioPlayer.play()
+                .then(() => {
+                    isPlaying = true;
+                    playBtn.classList.add('hidden');
+                    stopBtn.classList.remove('hidden');
+                    visualizer.classList.remove('hidden');
+                    nowPlaying.textContent = `🎧 En lecture: ${currentStation.name}`;
+                })
+                .catch(err => {
+                    console.error('Erreur de lecture:', err);
+                    nowPlaying.textContent = `❌ Erreur: ${err.message}`;
+                });
+        }
+
+        // Arrêt de la lecture
+        stopBtn.addEventListener('click', () => {
+            audioPlayer.pause();
+            audioPlayer.src = '';
+            isPlaying = false;
+            playBtn.classList.remove('hidden');
+            stopBtn.classList.add('hidden');
+            visualizer.classList.add('hidden');
+            if (currentStation) {
+                nowPlaying.textContent = `⏸️ ${currentStation.name} (en pause)`;
+            }
+        });
+
+        // Contrôle du volume
+        volumeSlider.addEventListener('input', (e) => {
+            audioPlayer.volume = e.target.value / 100;
+        });
+
+        // Gestion des erreurs
+        audioPlayer.addEventListener('error', (e) => {
+            console.error('Erreur audio:', e);
+            nowPlaying.textContent = `❌ Impossible de charger le stream`;
+            isPlaying = false;
+            playBtn.classList.remove('hidden');
+            stopBtn.classList.add('hidden');
+            visualizer.classList.add('hidden');
+        });
+    </script>
+</body>
+</html>

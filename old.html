@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MrTHP | Nexus Command Center</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* === CONFIGURATION CORE === */
+        :root {
+            --bg-dark: #050507;
+            --surface-glass: rgba(20, 20, 25, 0.6);
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --surface-hover: rgba(30, 30, 40, 0.8);
+            
+            --primary: #00f2ea;   /* Cyan Cyber */
+            --secondary: #ff0055; /* Magenta Neon */
+            --accent: #7000ff;    /* Deep Purple */
+            --success: #00ff9d;
+            
+            --font-main: 'Inter', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+            
+            --blur: 16px;
+            --radius: 24px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        /* === RESET & BASE === */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(112, 0, 255, 0.08), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(0, 242, 234, 0.05), transparent 25%);
+            color: #fff;
+            font-family: var(--font-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 2rem;
+        }
+
+        /* Arrière plan subtil grille */
+        .bg-grid {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-size: 50px 50px;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            z-index: -1;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+            pointer-events: none;
+        }
+
+        /* === LAYOUT === */
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+        }
+
+        /* === SIDEBAR (PROFILE & TOOLS) === */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .profile-card {
+            background: var(--surface-glass);
+            backdrop-filter: blur(var(--blur));
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar-container {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1rem;
+            position: relative;
+        }
+
+        .avatar {
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, var(--accent), var(--secondary));
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; font-weight: 800;
+            box-shadow: 0 0 20px rgba(112, 0, 255, 0.4);
+        }
+
+        .status-badge {
+            position: absolute; bottom: 5px; right: 5px;
+            width: 16px; height: 16px;
+            background: var(--success);
+            border: 3px solid var(--bg-dark);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        .user-tag {
+            font-family: var(--font-code);
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.5);
+            margin-top: 0.5rem;
+            display: block;
+        }
+
+        /* Quick Commands (Snippets) */
+        .snippets-card {
+            background: var(--surface-glass);
+            backdrop-filter: blur(var(--blur));
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        .cmd-item {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 0.8rem;
+            margin-bottom: 0.8rem;
+            border-left: 2px solid var(--surface-border);
+            transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .cmd-item:hover {
+            border-left-color: var(--primary);
+            background: rgba(0,242,234,0.05);
+        }
+
+        .cmd-desc {
+            font-size: 0.75rem; color: #888; margin-bottom: 0.3rem;
+            display: block;
+        }
+        
+        .cmd-code {
+            font-family: var(--font-code);
+            font-size: 0.8rem; color: #fff;
+            display: flex; justify-content: space-between;
+        }
+
+        /* === MAIN CONTENT (BENTO GRID) === */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--surface-glass);
+            backdrop-filter: blur(var(--blur));
+            border: 1px solid var(--surface-border);
+            border-radius: 16px;
+            padding: 1rem 2rem;
+        }
+
+        .breadcrumbs {
+            font-family: var(--font-code);
+            color: var(--primary);
+        }
+
+        .system-time {
+            font-family: var(--font-code);
+            font-weight: 700;
+        }
+
+        /* THE BENTO GRID */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-auto-rows: minmax(180px, auto);
+            gap: 1.5rem;
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--surface-glass);
+            backdrop-filter: blur(var(--blur));
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: white;
+        }
+
+        .card:hover {
+            transform: translateY(-5px) scale(1.01);
+            border-color: rgba(255,255,255,0.2);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            background: var(--surface-hover);
+        }
+
+        /* Card Sizes */
+        .card.wide { grid-column: span 2; }
+        .card.tall { grid-row: span 2; }
+        .card.full { grid-column: span 3; }
+
+        /* Card Content */
+        .card-icon {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+
+        .card:hover .card-icon {
+            background: var(--primary);
+            color: #000;
+        }
+
+        .card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        .card-meta {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            font-family: var(--font-code);
+        }
+
+        /* Specific Card Styles */
+        .card.featured {
+            background: linear-gradient(145deg, rgba(20, 20, 25, 0.8), rgba(0, 242, 234, 0.05));
+            border: 1px solid rgba(0, 242, 234, 0.2);
+        }
+
+        .card.featured h3 {
+            background: linear-gradient(90deg, #fff, var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .card.danger {
+            border-color: rgba(255, 0, 85, 0.3);
+        }
+        .card.danger:hover .card-icon {
+            background: var(--secondary);
+            color: #fff;
+        }
+
+        /* Download Section inside a card */
+        .dl-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+        .dl-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .dl-item:last-child { border-bottom: none; }
+        .dl-btn {
+            background: rgba(255,255,255,0.1);
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.2s;
+        }
+        .dl-item:hover .dl-btn {
+            background: var(--success);
+            color: #000;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 4rem;
+            text-align: center;
+            color: rgba(255,255,255,0.3);
+            font-family: var(--font-code);
+            font-size: 0.8rem;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(0, 255, 157, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .dashboard { grid-template-columns: 1fr; }
+            .sidebar { flex-direction: row; flex-wrap: wrap; }
+            .profile-card { flex: 1; }
+            .snippets-card { flex: 2; }
+        }
+
+        @media (max-width: 768px) {
+            .bento-grid { grid-template-columns: 1fr; }
+            .card.wide, .card.full { grid-column: span 1; }
+            .sidebar { flex-direction: column; }
+            body { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+
+    <div class="dashboard">
+        
+        <aside class="sidebar">
+            <div class="profile-card">
+                <div class="avatar-container">
+                    <div class="avatar">MT</div>
+                    <div class="status-badge" title="System Online"></div>
+                </div>
+                <h2>MrTHP</h2>
+                <span class="user-tag">@debian_trixie</span>
+                <div style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 1rem;">
+                    <a href="https://github.com/MrTHP" style="color:white; opacity:0.7;"><i class="fab fa-github fa-lg"></i></a>
+                    <a href="https://discord.gg/2G2xmpFyHt" style="color:white; opacity:0.7;"><i class="fab fa-discord fa-lg"></i></a>
+                    <a href="https://alexeybarabash.github.io/25th-brave-sync-word/" style="color:white; opacity:0.7;"><i class="fas fa-globe fa-lg"></i></a>
+                </div>
+            </div>
+
+            <div class="snippets-card">
+                <div class="section-title">
+                    <i class="fas fa-terminal"></i> Quick Copy
+                </div>
+                <div class="cmd-item" onclick="copyToClipboard('sudo apt update && sudo apt upgrade -y')">
+                    <span class="cmd-desc">Debian Update</span>
+                    <div class="cmd-code">apt update... <i class="fas fa-copy"></i></div>
+                </div>
+                <div class="cmd-item" onclick="copyToClipboard('flatpak update')">
+                    <span class="cmd-desc">Flatpak Update</span>
+                    <div class="cmd-code">flatpak up... <i class="fas fa-copy"></i></div>
+                </div>
+                <div class="cmd-item" onclick="copyToClipboard('flatpak install flathub io.github.kolunmi.Bazaar')">
+                    <span class="cmd-desc">Install Bazaar Flatpak Store</span>
+                    <div class="cmd-code">flatpak install... <i class="fas fa-copy"></i></div>
+                </div>
+                <div class="cmd-item" onclick="copyToClipboard('flatpak install flathub io.github.Faugus.faugus-launcher')">
+                    <span class="cmd-desc">Install Faugus Launcher</span>
+                    <div class="cmd-code">flatpak install... <i class="fas fa-copy"></i></div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            
+            <header class="header-bar">
+                <div class="breadcrumbs">
+                    <i class="fas fa-home"></i> / home / mrthp / <span style="color:#fff">dashboard</span>
+                </div>
+                <div class="system-time" id="clock">00:00:00</div>
+            </header>
+
+            <div class="bento-grid">
+                
+                <a href="https://github.com/MrTHP/trixie_architect" class="card featured wide">
+                    <div class="card-icon">
+                        <i class="fas fa-drafting-compass"></i>
+                    </div>
+                    <h3>Trixie Architect</h3>
+                    <p>Le script de post-installation ultime pour Debian Trixie. Automatise la configuration Gaming, Drivers et Environnement.</p>
+                    <div class="card-meta">
+                        <span class="tag" style="border-color: var(--primary); color: var(--primary)">V 7.0</span>
+                        <span class="tag">Bash</span>
+                        <span class="tag">Automation</span>
+                    </div>
+                </a>
+
+                <a href="https://mrthp.ovh/protonpass.html" class="card">
+                    <div class="card-icon" style="color: #a881ff">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Proton Pass Guide</h3>
+                    <p>Sécurité maximale. Guide de configuration Zero-Knowledge pour vos mots de passe.</p>
+                    <div class="card-meta">
+                        <span class="tag">Security</span>
+                        <span class="tag">Privacy</span>
+                    </div>
+                </a>
+
+                <a href="debian13.html" class="card">
+                    <div class="card-icon" style="color: var(--secondary)">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <h3>Debian Gaming</h3>
+                    <p>Optimisations Kernel, Steam, Lutris et émulateurs pour Trixie.</p>
+                    <div class="card-meta">
+                        <span class="tag">FPS Boost</span>
+                        <span class="tag">Drivers</span>
+                    </div>
+                </a>
+
+                <a href="https://search.nixos.org/packages" target="_blank" class="card">
+                    <div class="card-icon" style="color: #7ebae4">
+                        <i class="fas fa-snowflake"></i>
+                    </div>
+                    <h3>NixOS Packages</h3>
+                    <p>Accès direct à la base de données des paquets Nix. Recherche instantanée.</p>
+                </a>
+
+                <div class="card tall">
+                    <div class="card-icon">
+                        <i class="fas fa-cloud-download-alt"></i>
+                    </div>
+                    <h3>Repository</h3>
+                    <p>ISO & Outils essentiels.</p>
+                    
+                    <ul class="dl-list">
+                        <li class="dl-item">
+                            <span>Debian 13.3 Netinst</span>
+                            <a href="https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-13.3.0-amd64-netinst.iso" class="dl-btn"><i class="fas fa-arrow-down"></i></a>
+                        </li>
+                        <li class="dl-item">
+                            <span>Linux Mint 22.3</span>
+                            <a href="https://mirrors.ukfast.co.uk/sites/linuxmint.com/isos/stable/22.3/linuxmint-22.3-cinnamon-64bit.iso" class="dl-btn"><i class="fas fa-arrow-down"></i></a>
+                        </li>
+                        <li class="dl-item">
+                            <span>7-Zip (Win)</span>
+                            <a href="https://www.7-zip.org/a/7z2501-x64.exe" class="dl-btn"><i class="fas fa-arrow-down"></i></a>
+                        </li>
+                        <li class="dl-item">
+                            <span>Silksong (Archive)</span>
+                            <a href="https://u.pcloud.link/publink/show?code=XZSd3D5ZFhxUF2JyGTLgSz5EwMr4QVKDsQ7k" class="dl-btn"><i class="fas fa-file-archive"></i></a>
+                        </li>
+                    </ul>
+                </div>
+
+                <a href="wallpapers" class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <h3>Wallpaper Gallery</h3>
+                    <p>Collection 4K : Cyberpunk, Nature, Abstrait.</p>
+                </a>
+
+                <a href="apps" class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-th-large"></i>
+                    </div>
+                    <h3>App Hub</h3>
+                    <p>Installations en un clic pour vos outils favoris.</p>
+                </a>
+
+                <a href="data" class="card danger">
+                    <div class="card-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3>Private Data</h3>
+                    <p>Accès sécurisé au stockage personnel chiffré.</p>
+                    <div class="card-meta">
+                        <span class="tag" style="background: rgba(255,0,85,0.1); color: var(--secondary)">Restricted</span>
+                    </div>
+                </a>
+
+            </div>
+
+        </main>
+    </div>
+
+    <footer>
+        <p>TERMINAL SYSTEM V3.0 • DEBIAN TRIXIE POWERED • <span id="uptime">UPTIME: 420 DAYS</span></p>
+    </footer>
+
+    <script>
+        // HORLOGE TEMPS REEL
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.toLocaleTimeString('fr-FR');
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // FONCTION COPIE PRESSE-PAPIER AVEC FEEDBACK
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Créer une petite notification temporaire
+                const notif = document.createElement('div');
+                notif.textContent = 'Commande copiée !';
+                notif.style.position = 'fixed';
+                notif.style.bottom = '20px';
+                notif.style.right = '20px';
+                notif.style.background = '#00ff9d';
+                notif.style.color = '#000';
+                notif.style.padding = '10px 20px';
+                notif.style.borderRadius = '8px';
+                notif.style.fontFamily = 'var(--font-code)';
+                notif.style.fontWeight = 'bold';
+                notif.style.animation = 'fadein 0.3s';
+                
+                document.body.appendChild(notif);
+                
+                setTimeout(() => {
+                    notif.style.opacity = '0';
+                    setTimeout(() => notif.remove(), 300);
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
