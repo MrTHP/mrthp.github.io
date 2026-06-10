@@ -292,6 +292,136 @@ body.nuit .lang-toggle{background:#1a2740; color:#e8d9b5; border-color:#2a3a5c; 
   transform:rotate(-4deg); background:#fff; padding:0 6px; border:1px dashed #e2c9b8;
 }
 
+/* TIROIRS - NEW SECTIONS */
+.tiroirs{display:grid; gap:38px; margin-top:48px}
+.panel{
+  position:relative; background:#fffaf0; border:2px solid var(--ink); padding:22px 20px 26px;
+  box-shadow:6px 8px 0 rgba(0,0,0,.1); transform:rotate(var(--rot,0));
+}
+.panel::before{
+  content:""; position:absolute; inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='f'%3E%3CfeTurbulence baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.03'/%3E%3C/svg%3E");
+  mix-blend-mode:multiply; pointer-events:none;
+}
+.panel:nth-child(1){--rot:-0.4deg}
+.panel:nth-child(2){--rot:0.5deg}
+.panel:nth-child(3){--rot:-0.3deg}
+.panel h3{
+  font-family:"Fraunces"; font-weight:800; font-size:clamp(24px,3.2vw,34px); margin:0 0 4px;
+  display:flex; align-items:center; gap:12px
+}
+.panel h3 i{color:var(--rust)}
+.panel .sub{font-size:13px; opacity:.72; margin-bottom:18px; letter-spacing:.02em}
+
+/* Corkboard Wallpapers */
+.corkboard{
+  background:#c49a6c;
+  background-image:
+    radial-gradient(#b1845a 1.2px, transparent 1.2px),
+    radial-gradient(#a9784a 1px, transparent 1px);
+  background-size:26px 26px, 26px 26px;
+  background-position:0 0,13px 13px;
+  border:3px solid #5a4024; box-shadow:inset 0 0 40px rgba(0,0,0,.25), 0 4px 0 #8a6a48;
+  padding:22px; position:relative;
+}
+.corkboard::after{
+  content:""; position:absolute; inset:8px; border:1px dashed rgba(0,0,0,.15); pointer-events:none;
+}
+.polaroids{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:22px 18px;
+}
+.polaroid{
+  position:relative; background:#fffdf7; padding:8px 8px 28px; cursor:pointer;
+  border:1px solid #d8c9a8; box-shadow:3px 4px 0 rgba(0,0,0,.18), 0 2px 6px rgba(0,0,0,.12);
+  transform:rotate(var(--r,-1deg)); transition:transform .16s, box-shadow .16s; user-select:none;
+}
+.polaroid:hover{transform:rotate(0) translateY(-4px) scale(1.03); box-shadow:5px 7px 0 rgba(0,0,0,.22); z-index:5}
+.polaroid img{
+  width:100%; height:130px; object-fit:cover; display:block; filter:contrast(1.04) saturate(.94);
+  border:1px solid #e8dfc8; background:#ddd;
+}
+.polaroid figcaption{
+  font-family:"Caveat"; font-size:20px; text-align:center; margin-top:6px; color:#3a2f1d; transform:rotate(-1.5deg);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.polaroid .tape-mini{
+  position:absolute; top:-10px; left:50%; transform:translateX(-50%) rotate(var(--tr, -4deg));
+  width:60px; height:20px; background:rgba(255,246,210,.88); border-left:2px dashed rgba(0,0,0,.12); border-right:2px dashed rgba(0,0,0,.12);
+  box-shadow:0 1px 2px rgba(0,0,0,.18);
+}
+
+/* Pegboard Apps */
+.pegboard{
+  background:#5a3e2b;
+  background-image:
+    radial-gradient(circle, #3e281a 1.5px, transparent 1.5px),
+    linear-gradient(#6b4d35,#543a27);
+  background-size:32px 32px, 100% 100%;
+  background-blend-mode:multiply;
+  border:3px solid #2d1c12; padding:26px 22px 30px; box-shadow:inset 0 0 40px rgba(0,0,0,.55), 0 4px 0 #3a2518;
+  position:relative;
+}
+.pegboard::before{
+  content:""; position:absolute; left:0; right:0; top:12px; height:4px; background:#2d1c12; box-shadow:0 24px 0 #2d1c12, 0 48px 0 #2d1c12, 0 72px 0 #2d1c12, 0 96px 0 #2d1c12;
+  opacity:.25; pointer-events:none;
+}
+.pegboard-grid{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(170px,1fr)); gap:28px 22px; position:relative; z-index:2;
+}
+.tool-tag{
+  position:relative; display:block; background:var(--kraft); color:var(--ink); text-decoration:none;
+  padding:16px 14px 14px 16px; border:2px solid #8e7a56; box-shadow:3px 5px 0 rgba(0,0,0,.45);
+  transform:rotate(var(--rt,0deg)); transition:transform .2s; clip-path:polygon(0 8%,6% 0,100% 0,100% 92%,94% 100%,0 100%);
+}
+.tool-tag::before{content:""; position:absolute; top:-20px; left:50%; width:2px; height:24px; background:#2d1c12; transform:translateX(-50%)}
+.tool-tag::after{content:""; position:absolute; top:-30px; left:50%; width:15px; height:15px; background:radial-gradient(#d8c9a8,#bda87e); border:2px solid #2d1c12; border-radius:50%; transform:translateX(-50%); box-shadow:inset 0 2px 2px rgba(255,255,255,.35), 0 2px 0 rgba(0,0,0,.4)}
+.tool-tag:hover{animation:swing .6s ease; transform:translateY(-2px)}
+@keyframes swing{0%{transform:rotate(0)}25%{transform:rotate(2.5deg)}75%{transform:rotate(-2.5deg)}100%{transform:rotate(0)}}
+.tool-tag i{font-size:20px; margin-right:8px; opacity:.9}
+.tool-tag b{font-family:"Fraunces"; font-size:18px; letter-spacing:.01em}
+.tool-tag small{display:block; opacity:.75; margin-top:4px; font-size:12px}
+
+/* Blueprints */
+.blueprint-rack{
+  background:linear-gradient(#d9c7a6,#c8b391); border:3px solid #8e7a56; padding:24px; box-shadow:inset 0 0 24px rgba(0,0,0,.18), 0 4px 0 #9c8a6a;
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:20px; position:relative;
+}
+.blueprint-rack::before{
+  content:""; position:absolute; inset:0; background:repeating-linear-gradient(90deg, transparent 0 40px, rgba(0,0,0,.04) 40px 41px); pointer-events:none;
+}
+.blueprint{
+  position:relative; display:grid; grid-template-columns:auto 1fr; gap:14px; align-items:center;
+  text-decoration:none; color:#dbe8ff; background:#1E3A5F; border:2px solid #0b223e; padding:14px 14px;
+  box-shadow:4px 5px 0 #0b1a2b, inset 0 0 0 1px rgba(255,255,255,.06); transform:rotate(var(--rb,0));
+  transition:transform .14s, box-shadow .14s; overflow:hidden;
+}
+.blueprint::before{
+  content:""; position:absolute; inset:0; background-image:repeating-linear-gradient(transparent 0 22px, rgba(255,255,255,.06) 22px 23px), repeating-linear-gradient(90deg, transparent 0 22px, rgba(255,255,255,.04) 22px 23px);
+  mix-blend-mode:overlay; pointer-events:none;
+}
+.blueprint:hover{transform:translateY(-3px) rotate(0); box-shadow:5px 7px 0 #0b1a2b}
+.roll{
+  width:48px; height:68px; background:
+    repeating-linear-gradient(90deg, #e6f0ff 0 1px, transparent 1px 5px),
+    linear-gradient(#2a4a76,#1a3254);
+  border:2px solid #0a1629; border-radius:4px; box-shadow:inset -8px 0 0 #18365f, inset 0 0 12px rgba(0,0,0,.45);
+  position:relative; flex-shrink:0;
+}
+.roll::after{content:""; position:absolute; right:-6px; top:4px; bottom:4px; width:8px; background:#0d1f3a; border:1px solid #06101f; border-radius:0 3px 3px 0}
+.blueprint b{font-family:"IBM Plex Mono"; font-size:15px; letter-spacing:.02em; display:block; color:#fff}
+.blueprint small{display:block; opacity:.85; font-size:12px; margin-top:3px; color:#bcd0f0; font-family:"Caveat"; font-size:18px; transform:rotate(-1deg)}
+
+/* Lightbox */
+.lightbox{
+  position:fixed; inset:0; background:rgba(8,10,14,.92); display:none; place-items:center; z-index:200; padding:24px;
+}
+.lightbox.show{display:grid; animation:fade .18s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.lightbox img{max-width:92vw; max-height:82vh; box-shadow:0 12px 40px rgba(0,0,0,.7); border:5px solid #fffdf7; background:#fff}
+.lightbox .bar{position:absolute; bottom:28px; display:flex; gap:12px}
+.lightbox .btn{background:#fffaf0; color:#111; padding:9px 14px; border:2px solid #000; font-weight:700; text-decoration:none; font-family:"IBM Plex Mono"; box-shadow:3px 3px 0 rgba(0,0,0,.5); cursor:pointer; font-size:13px; letter-spacing:.02em}
+.lightbox .btn:hover{transform:translateY(-1px)}
+
 /* IMPERFECTIONS */
 .coffee{
   position:absolute; right:-20px; bottom:120px; width:160px; height:160px; opacity:.18; pointer-events:none; transform:rotate(12deg);
@@ -311,7 +441,7 @@ footer{
 body.nuit{
   --paper:var(--nuit-paper); --ink:var(--nuit-ink); background:#07111d; color:var(--nuit-ink);
 }
-body.nuit .topbar, body.nuit .hero-desk, body.nuit .board, body.nuit footer{
+body.nuit .topbar, body.nuit .hero-desk, body.nuit .board, body.nuit footer, body.nuit .panel{
   background:#0b1a2b; border-color:#2b3b55; box-shadow:6px 8px 0 rgba(0,0,0,.4);
 }
 body.nuit .tag{background:#1a2740; color:#e8d9b5; border-color:#2a3a5c; box-shadow:3px 4px 0 rgba(0,0,0,.5)}
@@ -324,6 +454,15 @@ body.nuit .preset{color:#e8d9b5}
 body.nuit .nowplaying{color:#d8c9a0}
 body.nuit .grain{opacity:.25}
 body.nuit .digit{background:#000; color:var(--nuit-amber); box-shadow:inset 0 -3px 0 #000, inset 0 3px 0 #1a1205, 0 2px 0 #000}
+body.nuit .corkboard{filter:brightness(.75) contrast(1.1)}
+body.nuit .polaroid{background:#0f1a26; border-color:#2a3a5c}
+body.nuit .polaroid img{border-color:#1a2a40; filter:brightness(.88) contrast(1.05)}
+body.nuit .polaroid figcaption{color:#e8d9b5}
+body.nuit .pegboard{filter:brightness(.7)}
+body.nuit .tool-tag{background:#1a2740; color:#e8d9b5; border-color:#2a3a5c}
+body.nuit .blueprint-rack{background:#0f2035; border-color:#2a3d5e}
+body.nuit .blueprint{background:#132a4a; border-color:#1a355e}
+body.nuit .lightbox img{border-color:#0b1a2b}
 
 /* TOGGLE */
 .mode{
@@ -348,6 +487,11 @@ body.nuit .mode{background:#e8d9b5; color:#0b1a2b; border-color:#e8d9b5}
 
 /* UTIL */
 .sr{position:absolute; left:-9999px}
+@media (max-width:600px){
+  .presets{grid-template-columns:repeat(2,1fr)}
+  .polaroids{grid-template-columns:repeat(2,1fr)}
+  .knobs{display:none}
+}
 </style>
 </head>
 <body>
@@ -388,15 +532,6 @@ body.nuit .mode{background:#e8d9b5; color:#0b1a2b; border-color:#e8d9b5}
       <a class="tag" href="https://mrthp.ovh/protonpass.html" target="_blank" rel="noopener">
         <i class="fa-solid fa-key"></i><div>Proton Pass <small id="tag2small">coffre</small></div>
       </a>
-      <a class="tag" href="https://mrthp.ovh/apps" target="_blank" rel="noopener">
-        <i class="fa-solid fa-cubes"></i><div>/apps <small id="tag3small">outils maison</small></div>
-      </a>
-      <a class="tag" href="https://mrthp.ovh/wallpapers" target="_blank" rel="noopener">
-        <i class="fa-regular fa-image"></i><div>wallpapers <small id="tag4small">fonds</small></div>
-      </a>
-      <a class="tag" href="https://mrthp.ovh/data" target="_blank" rel="noopener">
-        <i class="fa-solid fa-database"></i><div>/data <small id="tag5small">stockage</small></div>
-      </a>
       <a class="tag" href="https://github.com/MrTHP" target="_blank" rel="noopener">
         <i class="fa-brands fa-github"></i><div>GitHub <small id="tag6small">@MrTHP</small></div>
       </a>
@@ -407,7 +542,7 @@ body.nuit .mode{background:#e8d9b5; color:#0b1a2b; border-color:#e8d9b5}
         <i class="fa-brands fa-brave"></i><div>Brave Sync 25th <small id="tag8small">outil</small></div>
       </a>
     </div>
-    <p id="tagsHint" style="margin:14px 8px 0; font-size:13px; opacity:.75">Tire les étiquettes — elles bougent un peu. Atelier bricolé, pas de verre dépoli.</p>
+    <p id="tagsHint" style="margin:14px 8px 0; font-size:13px; opacity:.75">Tire les étiquettes — elles bougent un peu. Les apps, wallpapers et data sont dans les tiroirs en bas.</p>
   </section>
 
   <section class="grid">
@@ -465,7 +600,7 @@ body.nuit .mode{background:#e8d9b5; color:#0b1a2b; border-color:#e8d9b5}
           </a>
           <a class="fiche" href="https://kdrive.infomaniak.com/app/share/280110/669a1cd6-21fd-4c5c-9ba0-c2f13b7bb18e" target="_blank" rel="noopener">
             <div class="ico"><i class="fa-solid fa-flask"></i></div>
-            <div><b>GLFOS QUASAR</b><small id="fiche2small">QUASAR - publiée le 9 juin 2026.</small></div>
+            <div><b>GLFOS QUASAR</b><small id="fiche2small">Version actuelle : QUASAR - publiée le 9 juin 2026.</small></div>
             <div class="tagr" id="tagr2">à tester</div>
           </a>
           <a class="fiche" href="https://mirrors.ukfast.co.uk/sites/linuxmint.com/isos/stable/22.3/linuxmint-22.3-cinnamon-64bit.iso" target="_blank" rel="noopener">
@@ -488,6 +623,133 @@ body.nuit .mode{background:#e8d9b5; color:#0b1a2b; border-color:#e8d9b5}
     </div>
   </section>
 
+  <!-- TIROIRS -->
+  <section class="tiroirs" id="tiroirs">
+    <!-- 1. WALLPAPERS -->
+    <div class="panel">
+      <h3><i class="fa-regular fa-images"></i> <span id="wallpapersTitle">Murs de l'atelier — wallpapers</span></h3>
+      <div class="sub" id="wallpapersSub">19 fonds épinglés au mur</div>
+      <div class="corkboard">
+        <div class="polaroids" id="polaroids">
+          <figure class="polaroid" data-full="https://mrthp.ovh/wallpapers/1757120691.png" style="--r:-2.4deg; --tr:-5deg">
+            <div class="tape-mini"></div><img src="https://mrthp.ovh/wallpapers/1757120691.png" alt="1757120691" loading="lazy"><figcaption>1757120691</figcaption>
+          </figure>
+          <figure class="polaroid" data-full="https://mrthp.ovh/wallpapers/1757129620.png" style="--r:1.8deg; --tr:4deg">
+            <div class="tape-mini"></div><img src="https://mrthp.ovh/wallpapers/1757129620.png" alt="1757129620" loading="lazy"><figcaption>1757129620</figcaption>
+          </figure>
+          <figure class="polaroid" data-full="https://mrthp.ovh/wallpapers/1757129669.png" style="--r:-1.2deg; --tr:-3deg">
+            <div class="tape-mini"></div><img src="https://mrthp.ovh/wallpapers/1757129669.png" alt="1757129669" loading="lazy"><figcaption>1757129669</figcaption>
+          </figure>
+          <figure class="polaroid" data-full="https://mrthp.ovh/wallpapers/1757230364.png" style="--r:2.6deg; --tr:2deg">
+            <div class="tape-mini"></div><img src="https://mrthp.ovh/wallpapers/1757230364.png" alt="1757230364" loading="lazy"><figcaption>1757230364</figcaption>
+          </figure>
+          <figure class="polaroid" data-full="https://mrthp.ovh/wallpapers/1757230486.png" style="--r:-0.8deg; --tr:-2deg">
+            <div class="tape-mini"></div><img src="https://mrthp.ovh/wallpapers/1757230486.png" alt="1757230486" loading="lazy"><figcaption>1757230486</figcaption>
+          </figure>
+          <figure class="polaroid" data-full="https://mrthp.ovh/wallpapers/1757294123_imgupscaler.ai_General_4K.png" style="--r:1.4deg; --tr:5deg">
+            <div class="tape-mini"></div><img src="https://mrthp.ovh/wallpapers/1757294123_imgupscaler.ai_General_4K.png" alt="upscaler 4K" loading="lazy"><figcaption>upscaler 4K</figcaption>
+          </figure>
+          <figure class="polaroid" data-full="https://mrthp.ovh/wallpapers/1757380413.png" style="--r:-2.8deg; --tr:-4deg">
+            <div class="tape-mini"></div><img src="https://mrthp.ovh/wallpapers/1757380413.png" alt="1757380413" loading="lazy"><figcaption>1757380413</figcaption>
+          </figure>
+          <figure class="polaroid" data-full="https://mrthp.ovh/wallpapers/1757380735.png" style="--r:0.6deg; --tr:3deg">
+            <div class="tape-mini"></div><img src="https://mrthp.ovh/wallpapers/1757380735.png" alt="1757380735" loading="lazy"><figcaption>1757380735</figcaption>
+          </figure>
+          <figure class="polaroid" data-full="https://mrthp.ovh/wallpapers/1757601216.png" style="--r:-1.6deg; --tr:-1deg">
+            <div class="tape-mini"></div><img src="https://mrthp.ovh/wallpapers/1757601216.png" alt="1757601216" loading="lazy"><figcaption>1757601216</figcaption>
+          </figure>
+          <figure class="polaroid" data-full="https://mrthp.ovh/wallpapers/1757630373.png" style="--r:2.2deg; --tr:2deg">
+            <div class="tape-mini"></div><img src="https://mrthp.ovh/wallpapers/1757630373.png" alt="1757630373" loading="lazy"><figcaption>1757630373</figcaption>
+          </figure>
+          <figure class="polaroid" data-full="https://mrthp.ovh/wallpapers/1757630658.png" style="--r:-0.4deg; --tr:-3deg">
+            <div class="tape-mini"></div><img src="https://mrthp.ovh/wallpapers/1757630658.png" alt="1757630658" loading="lazy"><figcaption>1757630658</figcaption>
+          </figure>
+          <figure class="polaroid" data-full="https://mrthp.ovh/wallpapers/1757630771.png" style="--r:1.9deg; --tr:4deg">
+            <div class="tape-mini"></div><img src="https://mrthp.ovh/wallpapers/1757630771.png" alt="1757630771" loading="lazy"><figcaption>1757630771</figcaption>
+          </figure>
+          <figure class="polaroid" data-full="https://mrthp.ovh/wallpapers/1757630809.png" style="--r:-2.1deg; --tr:-2deg">
+            <div class="tape-mini"></div><img src="https://mrthp.ovh/wallpapers/1757630809.png" alt="1757630809" loading="lazy"><figcaption>1757630809</figcaption>
+          </figure>
+          <figure class="polaroid" data-full="https://mrthp.ovh/wallpapers/1757630924.png" style="--r:0.9deg; --tr:1deg">
+            <div class="tape-mini"></div><img src="https://mrthp.ovh/wallpapers/1757630924.png" alt="1757630924" loading="lazy"><figcaption>1757630924</figcaption>
+          </figure>
+          <figure class="polaroid" data-full="https://mrthp.ovh/wallpapers/CarnivoreWallpaper.jpg" style="--r:-1.7deg; --tr:-5deg">
+            <div class="tape-mini"></div><img src="https://mrthp.ovh/wallpapers/CarnivoreWallpaper.jpg" alt="Carnivore" loading="lazy"><figcaption>Carnivore</figcaption>
+          </figure>
+          <figure class="polaroid" data-full="https://mrthp.ovh/wallpapers/Praise%20The%20NixOS.png" style="--r:2.4deg; --tr:3deg">
+            <div class="tape-mini"></div><img src="https://mrthp.ovh/wallpapers/Praise%20The%20NixOS.png" alt="Praise NixOS" loading="lazy"><figcaption>Praise NixOS</figcaption>
+          </figure>
+          <figure class="polaroid" data-full="https://mrthp.ovh/wallpapers/debian.png" style="--r:-0.7deg; --tr:-2deg">
+            <div class="tape-mini"></div><img src="https://mrthp.ovh/wallpapers/debian.png" alt="debian" loading="lazy"><figcaption>debian</figcaption>
+          </figure>
+          <figure class="polaroid" data-full="https://mrthp.ovh/wallpapers/debian2.png" style="--r:1.3deg; --tr:2deg">
+            <div class="tape-mini"></div><img src="https://mrthp.ovh/wallpapers/debian2.png" alt="debian2" loading="lazy"><figcaption>debian2</figcaption>
+          </figure>
+          <figure class="polaroid" data-full="https://mrthp.ovh/wallpapers/seedream-image.jpeg" style="--r:-2.9deg; --tr:-4deg">
+            <div class="tape-mini"></div><img src="https://mrthp.ovh/wallpapers/seedream-image.jpeg" alt="seedream" loading="lazy"><figcaption>seedream</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. APPS -->
+    <div class="panel">
+      <h3><i class="fa-solid fa-screwdriver-wrench"></i> <span id="appsTitle">Boîte à outils — apps</span></h3>
+      <div class="sub" id="appsSub">scripts d'installation rapide</div>
+      <div class="pegboard">
+        <div class="pegboard-grid">
+          <a class="tool-tag" href="https://mrthp.ovh/apps/discord.sh" target="_blank" rel="noopener" style="--rt:-2deg">
+            <i class="fa-brands fa-discord"></i><b>discord.sh</b><small id="appDescDiscord">install Discord</small>
+          </a>
+          <a class="tool-tag" href="https://mrthp.ovh/apps/firefox.sh" target="_blank" rel="noopener" style="--rt:1.5deg">
+            <i class="fa-brands fa-firefox-browser"></i><b>firefox.sh</b><small id="appDescFirefox">Firefox propre</small>
+          </a>
+          <a class="tool-tag" href="https://mrthp.ovh/apps/telegram.sh" target="_blank" rel="noopener" style="--rt:-1deg">
+            <i class="fa-brands fa-telegram"></i><b>telegram.sh</b><small id="appDescTelegram">Telegram desktop</small>
+          </a>
+          <a class="tool-tag" href="https://mrthp.ovh/apps/zen.sh" target="_blank" rel="noopener" style="--rt:2deg">
+            <i class="fa-solid fa-leaf"></i><b>zen.sh</b><small id="appDescZen">Zen Browser</small>
+          </a>
+          <a class="tool-tag" href="https://mrthp.ovh/apps/vivaldi.sh" target="_blank" rel="noopener" style="--rt:-0.8deg">
+            <i class="fa-solid fa-compass"></i><b>vivaldi.sh</b><small id="appDescVivaldi">Vivaldi</small>
+          </a>
+          <a class="tool-tag" href="https://mrthp.ovh/apps/docker.sh" target="_blank" rel="noopener" style="--rt:1.2deg">
+            <i class="fa-brands fa-docker"></i><b>docker.sh</b><small id="appDescDocker">Docker + compose</small>
+          </a>
+          <a class="tool-tag" href="https://mrthp.ovh/apps/searxng.sh" target="_blank" rel="noopener" style="--rt:-1.6deg">
+            <i class="fa-solid fa-magnifying-glass"></i><b>searxng.sh</b><small id="appDescSearxng">SearXNG local</small>
+          </a>
+          <a class="tool-tag" href="https://mrthp.ovh/apps/reinstall_stack.sh" target="_blank" rel="noopener" style="--rt:0.6deg">
+            <i class="fa-solid fa-arrows-rotate"></i><b>reinstall_stack.sh</b><small id="appDescReinstall">réinstalle tout</small>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. DATA -->
+    <div class="panel">
+      <h3><i class="fa-solid fa-ruler-combined"></i> <span id="dataTitle">Plans d'architecte — data</span></h3>
+      <div class="sub" id="dataSub">mes scripts d'architecte</div>
+      <div class="blueprint-rack">
+        <a class="blueprint" href="https://mrthp.ovh/data/trixie_architect.sh" target="_blank" rel="noopener" style="--rb:-1deg">
+          <div class="roll"></div><div><b>trixie_architect.sh</b><small id="dataDescTrixie">Debian Trixie</small></div>
+        </a>
+        <a class="blueprint" href="https://mrthp.ovh/data/mint_architect.sh" target="_blank" rel="noopener" style="--rb:1deg">
+          <div class="roll"></div><div><b>mint_architect.sh</b><small id="dataDescMint">Linux Mint</small></div>
+        </a>
+        <a class="blueprint" href="https://mrthp.ovh/data/cachyos_architect.sh" target="_blank" rel="noopener" style="--rb:-0.6deg">
+          <div class="roll"></div><div><b>cachyos_architect.sh</b><small id="dataDescCachy">CachyOS/Arch</small></div>
+        </a>
+        <a class="blueprint" href="https://mrthp.ovh/data/bluefin_ai_architect.sh" target="_blank" rel="noopener" style="--rb:0.8deg">
+          <div class="roll"></div><div><b>bluefin_ai_architect.sh</b><small id="dataDescBluefin">Bluefin-DX-Nvidia</small></div>
+        </a>
+        <a class="blueprint" href="https://mrthp.ovh/data/trash/" target="_blank" rel="noopener" style="--rb:-1.4deg">
+          <div class="roll"></div><div><b>trash/</b><small id="dataDescTrash">corbeille</small></div>
+        </a>
+      </div>
+    </div>
+  </section>
+
   <div class="coffee" aria-hidden="true"></div>
 </main>
 
@@ -498,6 +760,14 @@ body.nuit .mode{background:#e8d9b5; color:#0b1a2b; border-color:#e8d9b5}
 <button class="mode" id="modeBtn" aria-label="Basculer atelier nuit"><i class="fa-regular fa-moon"></i> nuit</button>
 
 <div class="konami" id="konami"><div class="pop" id="konamiText">BONJOUR PHILLIP</div></div>
+
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <img id="lightboxImg" alt="">
+  <div class="bar">
+    <a id="lightboxDl" class="btn" href="#" download target="_blank" rel="noopener"><i class="fa-solid fa-download"></i> <span id="dlText">télécharger</span></a>
+    <button id="lightboxClose" class="btn" type="button"><i class="fa-solid fa-xmark"></i> <span id="closeText">fermer</span></button>
+  </div>
+</div>
 
 <script>
 /* Horloge split-flap simple */
@@ -518,7 +788,7 @@ const translations = {
     tag6small:"@MrTHP",
     tag7small:"atelier",
     tag8small:"outil",
-    tagsHint:"Tire les étiquettes — elles bougent un peu. Atelier bricolé, pas de verre dépoli.",
+    tagsHint:"Tire les étiquettes — elles bougent un peu. Les apps, wallpapers et data sont dans les tiroirs en bas.",
     radioAria:"Récepteur radio vintage",
     nowReady:"Prêt — choisis une station",
     nowPlayingPrefix:"Lecture — ",
@@ -543,7 +813,28 @@ const translations = {
     modeDay:"jour",
     konamiText:"BONJOUR PHILLIP",
     volumeLabel:"VOLUME",
-    tuningLabel:"TUNING"
+    tuningLabel:"TUNING",
+    wallpapersTitle:"Murs de l'atelier — wallpapers",
+    wallpapersSub:"19 fonds épinglés au mur",
+    appsTitle:"Boîte à outils — apps",
+    appsSub:"scripts d'installation rapide",
+    dataTitle:"Plans d'architecte — data",
+    dataSub:"mes scripts d'architecte",
+    appDiscord:"install Discord",
+    appFirefox:"Firefox propre",
+    appTelegram:"Telegram desktop",
+    appZen:"Zen Browser",
+    appVivaldi:"Vivaldi",
+    appDocker:"Docker + compose",
+    appSearxng:"SearXNG local",
+    appReinstall:"réinstalle tout",
+    dataTrixie:"Debian Trixie",
+    dataMint:"Linux Mint",
+    dataCachy:"CachyOS/Arch",
+    dataBluefin:"Bluefin-DX-Nvidia",
+    dataTrash:"corbeille",
+    dl:"télécharger",
+    close:"fermer"
   },
   en: {
     brandText:"WORKSHOP • MrTHP",
@@ -557,7 +848,7 @@ const translations = {
     tag6small:"@MrTHP",
     tag7small:"workshop",
     tag8small:"tool",
-    tagsHint:"Pull the tags — they wiggle a bit. Hand-built workshop, no frosted glass.",
+    tagsHint:"Pull the tags — they wiggle a bit. Apps, wallpapers and data are in the drawers below.",
     radioAria:"Vintage radio receiver",
     nowReady:"Ready — pick a station",
     nowPlayingPrefix:"Playing — ",
@@ -567,7 +858,7 @@ const translations = {
     downloadsTitle:"Download cards",
     downloadsNew:"new!",
     fiche1small:"amd64 — official netinstall",
-    fiche2small:"03/11/2026 — workshop build",
+    fiche2small:"Current version: QUASAR - released June 9, 2026.",
     fiche3small:"Cinnamon 64-bit",
     fiche4small:"2501 x64 — archiver",
     fiche5small:"workshop copy",
@@ -582,7 +873,28 @@ const translations = {
     modeDay:"day",
     konamiText:"HELLO PHILLIP",
     volumeLabel:"VOLUME",
-    tuningLabel:"TUNING"
+    tuningLabel:"TUNING",
+    wallpapersTitle:"Workshop Walls — wallpapers",
+    wallpapersSub:"19 backgrounds pinned up",
+    appsTitle:"Toolbox — apps",
+    appsSub:"quick install scripts",
+    dataTitle:"Architect plans — data",
+    dataSub:"my architect scripts",
+    appDiscord:"install Discord",
+    appFirefox:"clean Firefox",
+    appTelegram:"Telegram desktop",
+    appZen:"Zen Browser",
+    appVivaldi:"Vivaldi",
+    appDocker:"Docker + compose",
+    appSearxng:"local SearXNG",
+    appReinstall:"reinstall all",
+    dataTrixie:"Debian Trixie",
+    dataMint:"Linux Mint",
+    dataCachy:"CachyOS/Arch",
+    dataBluefin:"Bluefin-DX-Nvidia",
+    dataTrash:"trash",
+    dl:"download",
+    close:"close"
   }
 };
 function pad(n){return n<10?'0'+n:''+n}
@@ -731,9 +1043,6 @@ function setLang(lang){
   document.getElementById('heroTitle').textContent = t.heroTitle;
   document.getElementById('tag1small').textContent = t.tag1small;
   document.getElementById('tag2small').textContent = t.tag2small;
-  document.getElementById('tag3small').textContent = t.tag3small;
-  document.getElementById('tag4small').textContent = t.tag4small;
-  document.getElementById('tag5small').textContent = t.tag5small;
   document.getElementById('tag6small').textContent = t.tag6small;
   document.getElementById('tag7small').textContent = t.tag7small;
   document.getElementById('tag8small').textContent = t.tag8small;
@@ -757,6 +1066,28 @@ function setLang(lang){
   document.getElementById('konamiText').textContent = t.konamiText;
   document.getElementById('volLabel').textContent = t.volumeLabel;
   document.getElementById('tunLabel').textContent = t.tuningLabel;
+  // new sections
+  document.getElementById('wallpapersTitle').textContent = t.wallpapersTitle;
+  document.getElementById('wallpapersSub').textContent = t.wallpapersSub;
+  document.getElementById('appsTitle').textContent = t.appsTitle;
+  document.getElementById('appsSub').textContent = t.appsSub;
+  document.getElementById('dataTitle').textContent = t.dataTitle;
+  document.getElementById('dataSub').textContent = t.dataSub;
+  document.getElementById('appDescDiscord').textContent = t.appDiscord;
+  document.getElementById('appDescFirefox').textContent = t.appFirefox;
+  document.getElementById('appDescTelegram').textContent = t.appTelegram;
+  document.getElementById('appDescZen').textContent = t.appZen;
+  document.getElementById('appDescVivaldi').textContent = t.appVivaldi;
+  document.getElementById('appDescDocker').textContent = t.appDocker;
+  document.getElementById('appDescSearxng').textContent = t.appSearxng;
+  document.getElementById('appDescReinstall').textContent = t.appReinstall;
+  document.getElementById('dataDescTrixie').textContent = t.dataTrixie;
+  document.getElementById('dataDescMint').textContent = t.dataMint;
+  document.getElementById('dataDescCachy').textContent = t.dataCachy;
+  document.getElementById('dataDescBluefin').textContent = t.dataBluefin;
+  document.getElementById('dataDescTrash').textContent = t.dataTrash;
+  document.getElementById('dlText').textContent = t.dl;
+  document.getElementById('closeText').textContent = t.close;
 
   if (!currentPreset || !player.src) {
     nowTxt.textContent = t.nowReady;
@@ -786,6 +1117,7 @@ let pos=0;
 window.addEventListener('keydown', e=>{
   if(e.key.toLowerCase() === seq[pos].toLowerCase() || e.key === seq[pos]){ pos++; if(pos===seq.length){ pos=0; showKonami(); } }
   else pos = e.key==='ArrowUp'?1:0;
+  if(e.key==='Escape' && lightbox.classList.contains('show')) lightbox.classList.remove('show');
 });
 function showKonami(){
   const k = document.getElementById('konami'); k.classList.add('show');
@@ -794,7 +1126,27 @@ function showKonami(){
 
 /* Accessibilité: espace sur presets */
 presets.forEach(b=>b.addEventListener('keyup', e=>{ if(e.key==='Enter' || e.key===' '){ setStation(b); }}));
+
+/* Lightbox Wallpapers */
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const lightboxDl = document.getElementById('lightboxDl');
+const polaroids = document.getElementById('polaroids');
+polaroids.addEventListener('click', e=>{
+  const fig = e.target.closest('.polaroid'); if(!fig) return;
+  const src = fig.dataset.full;
+  lightboxImg.src = src;
+  lightboxDl.href = src;
+  lightbox.classList.add('show');
+});
+lightbox.addEventListener('click', e=>{
+  if(e.target === lightbox || e.target.id === 'lightboxClose' || e.target.closest('#lightboxClose')){
+    lightbox.classList.remove('show'); lightboxImg.src='';
+  }
+});
+document.getElementById('lightboxClose').addEventListener('click', ()=>{ lightbox.classList.remove('show'); lightboxImg.src=''; });
 </script>
+<script>(function(){document.addEventListener("click",function(e){var a=e.target.closest("[data-product-id]");if(!a)return;e.preventDefault();var pid=a.getAttribute("data-product-id");if(pid)parent.postMessage({type:"ecto-artifact-link-click",productId:pid},"*")})})();</script>
 <script>(function(){document.addEventListener("click",function(e){var a=e.target.closest("[data-product-id]");if(!a)return;e.preventDefault();var pid=a.getAttribute("data-product-id");if(pid)parent.postMessage({type:"ecto-artifact-link-click",productId:pid},"*")})})();</script>
 </body>
 </html>
