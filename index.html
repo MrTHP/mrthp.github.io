@@ -179,74 +179,7 @@ body.nuit .lang-toggle{background:#1a2740; color:#e8d9b5; border-color:#2a3a5c; 
 .grid{display:grid; grid-template-columns:1.2fr .8fr; gap:28px; align-items:start}
 @media (max-width:980px){.grid{grid-template-columns:1fr}}
 
-/* RADIO */
-.radio-wrap{position:relative; transform:rotate(0.6deg)}
-.radio{
-  background:#2b1b10; color:#e9dcc3; border:4px solid #1a0f07; border-radius:18px;
-  padding:18px; box-shadow:0 10px 0 #1a0f07, 0 18px 30px rgba(0,0,0,.35);
-  position:relative; overflow:hidden;
-}
-.radio::before{
-  content:""; position:absolute; inset:0; pointer-events:none;
-  background:
-    repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0 2px, transparent 2px 6px),
-    linear-gradient(#6a4426,#4a2e18 60%, #3a2313);
-  mix-blend-mode:overlay; opacity:.7;
-}
-.radio-top{display:grid; grid-template-columns:auto 1fr auto; gap:14px; align-items:center}
-.reel{
-  width:92px; height:92px; border-radius:50%; background:#0b0b0b; border:6px solid #151515;
-  box-shadow:inset 0 0 0 2px #222, inset 0 0 18px rgba(0,0,0,.8), 0 2px 0 #000;
-  position:relative; display:grid; place-items:center;
-}
-.reel::before{
-  content:""; width:64%; height:64%; border-radius:50%;
-  background:
-    repeating-conic-gradient(from 0deg, #2a2a2a 0 10deg, #1a1a1a 10deg 20deg);
-  border:2px solid #000; box-shadow:inset 0 0 8px rgba(0,0,0,.8);
-}
-.reel::after{content:""; position:absolute; width:18px; height:18px; background:#d9c7a6; border:3px solid #000; border-radius:50%}
-.reel.spin{animation:spin 1.8s linear infinite}
-.reel.spin:nth-child(1){animation-duration:1.9s}
-@keyframes spin{to{transform:rotate(360deg)}}
 
-.vu{
-  height:84px; background:#0f0f0f; border:3px solid #000; border-radius:8px; position:relative; overflow:hidden;
-  box-shadow:inset 0 0 12px rgba(0,0,0,.9);
-}
-.vu canvas{width:100%; height:100%; display:block}
-.vu label{
-  position:absolute; left:8px; top:6px; font-size:10px; letter-spacing:.12em; color:#ffcf7a; opacity:.9;
-  font-family:"IBM Plex Mono"
-}
-.radio-face{
-  margin-top:14px; background:#0c0c0c; border:3px solid #000; border-radius:12px; padding:14px;
-  display:grid; grid-template-columns:1fr auto; gap:14px; align-items:center;
-}
-.presets{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
-.preset{
-  background:linear-gradient(#1a1a1a,#0f0f0f); border:2px solid #000; color:#e6d9b8;
-  padding:10px 8px; border-radius:8px; font-size:12px; text-align:left; cursor:pointer;
-  box-shadow:inset 0 2px 0 #2a2a2a, 0 2px 0 #000; transition:transform .06s;
-}
-.preset b{display:block; font-family:"Fraunces"; font-size:14px; letter-spacing:.02em}
-.preset small{opacity:.7}
-.preset:active{transform:translateY(1px)}
-.preset.active{outline:2px solid var(--nuit-amber); color:var(--nuit-amber)}
-
-.knobs{display:flex; gap:16px}
-.knob{
-  width:76px; height:76px; border-radius:50%; background:radial-gradient(#2e2e2e,#0e0e0e);
-  border:3px solid #000; position:relative; box-shadow:inset 0 4px 8px rgba(0,0,0,.8), 0 3px 0 #000;
-  touch-action:none; user-select:none; cursor:grab;
-}
-.knob::after{content:""; position:absolute; left:50%; top:10px; width:4px; height:22px; background:#ffcf7a; border-radius:2px; transform:translateX(-50%); box-shadow:0 0 6px rgba(255,207,122,.6)}
-.knob span{position:absolute; bottom:-22px; left:50%; transform:translateX(-50%); font-size:10px; letter-spacing:.12em; color:#d6c39a; white-space:nowrap}
-.nowplaying{
-  margin-top:12px; font-size:12px; color:#d2bfa1; display:flex; gap:8px; align-items:center; flex-wrap:wrap
-}
-.nowplaying .led{width:8px; height:8px; border-radius:50%; background:#3a2; box-shadow:0 0 6px #3a2}
-.nowplaying.paused .led{background:#a33; box-shadow:0 0 6px #a33}
 
 /* DOWNLOADS */
 .downloads-wrap{position:relative; transform:rotate(-0.8deg)}
@@ -418,9 +351,37 @@ body.nuit .lang-toggle{background:#1a2740; color:#e8d9b5; border-color:#2a3a5c; 
 .lightbox.show{display:grid; animation:fade .18s ease}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 .lightbox img{max-width:92vw; max-height:82vh; box-shadow:0 12px 40px rgba(0,0,0,.7); border:5px solid #fffdf7; background:#fff}
-.lightbox .bar{position:absolute; bottom:28px; display:flex; gap:12px}
+.lightbox .bar{position:absolute; bottom:28px; left:50%; transform:translateX(-50%); display:flex; gap:12px; align-items:center}
 .lightbox .btn{background:#fffaf0; color:#111; padding:9px 14px; border:2px solid #000; font-weight:700; text-decoration:none; font-family:"IBM Plex Mono"; box-shadow:3px 3px 0 rgba(0,0,0,.5); cursor:pointer; font-size:13px; letter-spacing:.02em}
 .lightbox .btn:hover{transform:translateY(-1px)}
+.lightbox-nav{
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:48px; height:48px; border-radius:50%;
+  background:rgba(244,239,228,.9);
+  border:2px solid #000; color:#111;
+  display:grid; place-items:center; cursor:pointer;
+  font-size:20px; box-shadow:3px 3px 0 rgba(0,0,0,.5);
+  z-index:5; transition:transform .12s;
+}
+.lightbox-nav:hover{transform:translateY(-50%) scale(1.05)}
+.lightbox-nav:active{transform:translateY(-50%) scale(0.97)}
+.lightbox-nav.left{left:24px}
+.lightbox-nav.right{right:24px}
+.lightbox-close-top{position:absolute;top:20px;right:20px;width:48px;height:48px;border-radius:50%;background:rgba(244,239,228,.95);border:2px solid #000;color:#111;display:grid;place-items:center;cursor:pointer;font-size:22px;box-shadow:3px 3px 0 rgba(0,0,0,.5);z-index:10}
+.lightbox-close-top:hover{transform:scale(1.05)}
+.lightbox .counter{
+  background:#fffaf0; color:#111; padding:9px 14px; border:2px solid #000; font-weight:700;
+  font-family:"IBM Plex Mono"; box-shadow:3px 3px 0 rgba(0,0,0,.5); font-size:13px;
+  letter-spacing:.02em; white-space:nowrap;
+}
+@media (max-width:640px){
+  .lightbox-nav{width:42px; height:42px; font-size:18px}
+  .lightbox-nav.left{left:10px}
+  .lightbox-nav.right{right:10px}
+  .lightbox .bar{gap:8px; bottom:18px}
+  .lightbox .counter{padding:7px 10px; font-size:12px}
+  .lightbox .btn{padding:7px 10px; font-size:12px}
+}
 
 /* IMPERFECTIONS */
 .coffee{
@@ -463,6 +424,8 @@ body.nuit .tool-tag{background:#1a2740; color:#e8d9b5; border-color:#2a3a5c}
 body.nuit .blueprint-rack{background:#0f2035; border-color:#2a3d5e}
 body.nuit .blueprint{background:#132a4a; border-color:#1a355e}
 body.nuit .lightbox img{border-color:#0b1a2b}
+body.nuit .lightbox-nav{background:rgba(11,26,43,.9); border-color:#e8d9b5; color:#e8d9b5}
+body.nuit .lightbox .counter{background:#0b1a2b; color:#e8d9b5; border-color:#e8d9b5}
 
 /* TOGGLE */
 .mode{
@@ -541,53 +504,14 @@ body.nuit .mode{background:#e8d9b5; color:#0b1a2b; border-color:#e8d9b5}
       <a class="tag" href="https://alexeybarabash.github.io/25th-brave-sync-word/" target="_blank" rel="noopener">
         <i class="fa-brands fa-brave"></i><div>Brave Sync 25th <small id="tag8small">outil</small></div>
       </a>
+      <a class="tag" href="radio.html" style="--r:1.2deg">
+        <i class="fa-solid fa-tower-broadcast"></i><div>Radio <small id="tag9small">stream</small></div>
+      </a>
     </div>
     <p id="tagsHint" style="margin:14px 8px 0; font-size:13px; opacity:.75">Tire les étiquettes — elles bougent un peu. Les apps, wallpapers et data sont dans les tiroirs en bas.</p>
   </section>
 
-  <section class="grid">
-    <div class="radio-wrap">
-      <div class="radio" id="radioRegion" role="region" aria-label="Récepteur radio vintage">
-        <div class="radio-top">
-          <div class="reel" id="reelL" aria-hidden="true"></div>
-          <div class="vu">
-            <label>VU METER</label>
-            <canvas id="vu" width="400" height="120"></canvas>
-          </div>
-          <div class="reel" id="reelR" aria-hidden="true"></div>
-        </div>
 
-        <div class="radio-face">
-          <div class="presets" id="presets">
-            <button class="preset" data-url="https://phoebe.streamerr.co:3650/;?type=http&nocache=33">
-              <b>Jungle Planet</b><small>Jungle / Breakbeat</small>
-            </button>
-            <button class="preset" data-url="https://cast.magicstreams.gr:9111/stream">
-              <b>Psyndora</b><small>Psytrance / Goa</small>
-            </button>
-            <button class="preset" data-url="https://ice.bassdrive.net:80/stream">
-              <b>Bassdrive</b><small>Jungle / DnB</small>
-            </button>
-            <button class="preset" data-url="https://azura.drmnbss.org/listen/dnbradio/radio.mp3">
-              <b>DnB Radio</b><small>Drum & Bass</small>
-            </button>
-            <button class="preset" data-url="https://www.partyviberadio.com:8061/stream">
-              <b>Partyvibe DnB</b><small>Drum & Bass</small>
-            </button>
-            <button class="preset" data-url="https://stream.laut.fm/goa-channel-one">
-              <b>GOA ONE</b><small>Goa / Psy</small>
-            </button>
-          </div>
-          <div class="knobs">
-            <div class="knob" id="vol" title="Volume"><span id="volLabel">VOLUME</span></div>
-            <div class="knob" id="tun" title="Tuning"><span id="tunLabel">TUNING</span></div>
-          </div>
-        </div>
-        <div class="nowplaying paused" id="now"><span class="led"></span><span id="nowTxt">Prêt — choisis une station</span></div>
-        <audio id="player" preload="none" crossorigin="anonymous"></audio>
-      </div>
-      <div class="scribble" id="scribbleRadio" style="left:8px; bottom:-10px; transform:rotate(-3deg)">à tester le soir</div>
-    </div>
 
     <div class="downloads-wrap">
       <div class="board">
@@ -762,9 +686,13 @@ body.nuit .mode{background:#e8d9b5; color:#0b1a2b; border-color:#e8d9b5}
 <div class="konami" id="konami"><div class="pop" id="konamiText">BONJOUR PHILLIP</div></div>
 
 <div class="lightbox" id="lightbox" aria-hidden="true">
+  <button class="lightbox-close-top" id="lightboxCloseTop" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+  <button class="lightbox-nav left" id="lightPrev" aria-label="Previous"><i class="fa-solid fa-chevron-left"></i></button>
   <img id="lightboxImg" alt="">
+  <button class="lightbox-nav right" id="lightNext" aria-label="Next"><i class="fa-solid fa-chevron-right"></i></button>
   <div class="bar">
     <a id="lightboxDl" class="btn" href="#" download target="_blank" rel="noopener"><i class="fa-solid fa-download"></i> <span id="dlText">télécharger</span></a>
+    <span class="counter" id="lightboxCounter">1 / 19</span>
     <button id="lightboxClose" class="btn" type="button"><i class="fa-solid fa-xmark"></i> <span id="closeText">fermer</span></button>
   </div>
 </div>
@@ -947,6 +875,7 @@ const reelR = document.getElementById('reelR');
 let currentPreset = null;
 
 function setStation(btn){
+  if(!player || !nowEl || !nowTxt) return;
   presets.forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   const url = btn.dataset.url;
@@ -955,26 +884,30 @@ function setStation(btn){
   nowEl.classList.remove('paused');
   player.src = url;
   player.play().catch(()=>{});
-  reelL.classList.add('spin'); reelR.classList.add('spin');
+  if(reelL) reelL.classList.add('spin'); if(reelR) reelR.classList.add('spin');
   currentPreset = btn;
 }
 presets.forEach(b=>b.addEventListener('click', ()=>setStation(b)));
 
-player.addEventListener('pause', ()=>{
-  nowEl.classList.add('paused'); nowTxt.textContent = translations[currentLang].nowPause;
-  reelL.classList.remove('spin'); reelR.classList.remove('spin');
-});
-player.addEventListener('play', ()=>{
-  nowEl.classList.remove('paused');
-  reelL.classList.add('spin'); reelR.classList.add('spin');
-});
-player.addEventListener('error', ()=>{
-  nowTxt.textContent = translations[currentLang].nowError;
-  nowEl.classList.add('paused');
-});
+if(player){
+  player.addEventListener('pause', ()=>{
+    if(nowEl) nowEl.classList.add('paused'); 
+    if(nowTxt) nowTxt.textContent = translations[currentLang].nowPause;
+    if(reelL) reelL.classList.remove('spin'); if(reelR) reelR.classList.remove('spin');
+  });
+  player.addEventListener('play', ()=>{
+    if(nowEl) nowEl.classList.remove('paused');
+    if(reelL) reelL.classList.add('spin'); if(reelR) reelR.classList.add('spin');
+  });
+  player.addEventListener('error', ()=>{
+    if(nowTxt) nowTxt.textContent = translations[currentLang].nowError;
+    if(nowEl) nowEl.classList.add('paused');
+  });
+}
 
 /* Knobs */
 function makeKnob(el, onChange){
+  if(!el) return {set:()=>{}};
   let ang = -135, dragging=false, startAng=0, start=0;
   const set = a=>{ ang = Math.max(-135, Math.min(135, a)); el.style.transform = `rotate(${ang}deg)`; onChange((ang+135)/270); };
   set(30);
@@ -983,37 +916,42 @@ function makeKnob(el, onChange){
   window.addEventListener('pointerup', ()=>{ dragging=false; el.style.cursor='grab'; });
   return {set};
 }
-const volKnob = makeKnob(document.getElementById('vol'), v=>{ player.volume = v; });
-const tunKnob = makeKnob(document.getElementById('tun'), v=>{ document.getElementById('vu').style.filter = `saturate(${0.6+v})`; });
+const volEl = document.getElementById('vol');
+const tunEl = document.getElementById('tun');
+const volKnob = volEl ? makeKnob(volEl, v=>{ if(player) player.volume = v; }) : null;
+const tunKnob = tunEl ? makeKnob(tunEl, v=>{ const vuEl = document.getElementById('vu'); if(vuEl) vuEl.style.filter = `saturate(${0.6+v})`; }) : null;
 
 /* VU meter fake but réactif */
-const vu = document.getElementById('vu'); const ctx = vu.getContext('2d');
-function drawVU(){
-  const w = vu.width, h = vu.height;
-  ctx.clearRect(0,0,w,h);
-  ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0,0,w,h);
-  ctx.strokeStyle = '#1f1a0f'; ctx.lineWidth=1;
-  for(let x=0; x<w; x+=20){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
-  const playing = !player.paused && !player.ended && player.currentTime>0;
-  const base = playing ? 0.6 + Math.random()*0.4 : 0.05;
-  const bars = 24;
-  for(let i=0;i<bars;i++){
-    const amp = playing ? Math.random()*0.8+0.2 : Math.random()*0.1;
-    const bh = (h-16) * amp * base;
-    const x = 10 + i*(w-20)/bars;
-    const y = h-8 - bh;
-    const grad = ctx.createLinearGradient(0,y,0,h-8);
-    grad.addColorStop(0, '#ffcf7a'); grad.addColorStop(1, '#8a5a1e');
-    ctx.fillStyle = grad;
-    ctx.fillRect(x, y, (w-28)/bars*0.8, bh);
-    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(x, y+bh-3, (w-28)/bars*0.8, 3);
+const vu = document.getElementById('vu');
+if(vu){
+  const ctx = vu.getContext('2d');
+  function drawVU(){
+    const w = vu.width, h = vu.height;
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0,0,w,h);
+    ctx.strokeStyle = '#1f1a0f'; ctx.lineWidth=1;
+    for(let x=0; x<w; x+=20){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+    const playing = player && !player.paused && !player.ended && player.currentTime>0;
+    const base = playing ? 0.6 + Math.random()*0.4 : 0.05;
+    const bars = 24;
+    for(let i=0;i<bars;i++){
+      const amp = playing ? Math.random()*0.8+0.2 : Math.random()*0.1;
+      const bh = (h-16) * amp * base;
+      const x = 10 + i*(w-20)/bars;
+      const y = h-8 - bh;
+      const grad = ctx.createLinearGradient(0,y,0,h-8);
+      grad.addColorStop(0, '#ffcf7a'); grad.addColorStop(1, '#8a5a1e');
+      ctx.fillStyle = grad;
+      ctx.fillRect(x, y, (w-28)/bars*0.8, bh);
+      ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(x, y+bh-3, (w-28)/bars*0.8, 3);
+    }
+    const nx = 20 + (w-40) * (playing ? 0.5 + Math.sin(Date.now()/180)*0.45 : 0.08);
+    ctx.strokeStyle = '#ffcf7a'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(nx,8); ctx.lineTo(nx,h-8); ctx.stroke();
+    requestAnimationFrame(drawVU);
   }
-  const nx = 20 + (w-40) * (playing ? 0.5 + Math.sin(Date.now()/180)*0.45 : 0.08);
-  ctx.strokeStyle = '#ffcf7a'; ctx.lineWidth=2;
-  ctx.beginPath(); ctx.moveTo(nx,8); ctx.lineTo(nx,h-8); ctx.stroke();
-  requestAnimationFrame(drawVU);
+  drawVU();
 }
-drawVU();
 
 /* Mode nuit */
 const modeBtn = document.getElementById('modeBtn');
@@ -1047,8 +985,8 @@ function setLang(lang){
   document.getElementById('tag7small').textContent = t.tag7small;
   document.getElementById('tag8small').textContent = t.tag8small;
   document.getElementById('tagsHint').textContent = t.tagsHint;
-  document.getElementById('radioRegion').setAttribute('aria-label', t.radioAria);
-  document.getElementById('scribbleRadio').textContent = t.scribbleRadio;
+  const radioRegion = document.getElementById('radioRegion'); if(radioRegion) radioRegion.setAttribute('aria-label', t.radioAria);
+  const scribbleRadio = document.getElementById('scribbleRadio'); if(scribbleRadio) scribbleRadio.textContent = t.scribbleRadio;
   document.getElementById('downloadsTitle').textContent = t.downloadsTitle;
   document.getElementById('downloadsNew').textContent = t.downloadsNew;
   document.getElementById('fiche1small').textContent = t.fiche1small;
@@ -1064,8 +1002,8 @@ function setLang(lang){
   document.getElementById('scribbleDownloads').textContent = t.scribbleDownloads;
   document.getElementById('footerText').textContent = t.footerText;
   document.getElementById('konamiText').textContent = t.konamiText;
-  document.getElementById('volLabel').textContent = t.volumeLabel;
-  document.getElementById('tunLabel').textContent = t.tuningLabel;
+  const volLabel = document.getElementById('volLabel'); if(volLabel) volLabel.textContent = t.volumeLabel;
+  const tunLabel = document.getElementById('tunLabel'); if(tunLabel) tunLabel.textContent = t.tuningLabel;
   // new sections
   document.getElementById('wallpapersTitle').textContent = t.wallpapersTitle;
   document.getElementById('wallpapersSub').textContent = t.wallpapersSub;
@@ -1089,14 +1027,16 @@ function setLang(lang){
   document.getElementById('dlText').textContent = t.dl;
   document.getElementById('closeText').textContent = t.close;
 
-  if (!currentPreset || !player.src) {
-    nowTxt.textContent = t.nowReady;
-    nowEl.classList.add('paused');
-  } else if (player.paused) {
-    nowTxt.textContent = t.nowPause;
-  } else {
-    const name = currentPreset.querySelector('b').textContent;
-    nowTxt.textContent = t.nowPlayingPrefix + name;
+  if(player && nowTxt && nowEl){
+    if (!currentPreset || !player.src) {
+      nowTxt.textContent = t.nowReady;
+      nowEl.classList.add('paused');
+    } else if (player.paused) {
+      nowTxt.textContent = t.nowPause;
+    } else {
+      const name = currentPreset.querySelector('b').textContent;
+      nowTxt.textContent = t.nowPlayingPrefix + name;
+    }
   }
 
   const langBtn = document.getElementById('langBtn');
@@ -1117,7 +1057,6 @@ let pos=0;
 window.addEventListener('keydown', e=>{
   if(e.key.toLowerCase() === seq[pos].toLowerCase() || e.key === seq[pos]){ pos++; if(pos===seq.length){ pos=0; showKonami(); } }
   else pos = e.key==='ArrowUp'?1:0;
-  if(e.key==='Escape' && lightbox.classList.contains('show')) lightbox.classList.remove('show');
 });
 function showKonami(){
   const k = document.getElementById('konami'); k.classList.add('show');
@@ -1125,28 +1064,99 @@ function showKonami(){
 }
 
 /* Accessibilité: espace sur presets */
-presets.forEach(b=>b.addEventListener('keyup', e=>{ if(e.key==='Enter' || e.key===' '){ setStation(b); }}));
+if(presets.length){ presets.forEach(b=>b.addEventListener('keyup', e=>{ if(e.key==='Enter' || e.key===' '){ setStation(b); }})); }
 
-/* Lightbox Wallpapers */
-const lightbox = document.getElementById('lightbox');
-const lightboxImg = document.getElementById('lightboxImg');
-const lightboxDl = document.getElementById('lightboxDl');
-const polaroids = document.getElementById('polaroids');
-polaroids.addEventListener('click', e=>{
-  const fig = e.target.closest('.polaroid'); if(!fig) return;
-  const src = fig.dataset.full;
-  lightboxImg.src = src;
-  lightboxDl.href = src;
-  lightbox.classList.add('show');
-});
-lightbox.addEventListener('click', e=>{
-  if(e.target === lightbox || e.target.id === 'lightboxClose' || e.target.closest('#lightboxClose')){
-    lightbox.classList.remove('show'); lightboxImg.src='';
+
+
+/* Lightbox Wallpapers - version réparée */
+(function(){
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  const lightboxDl = document.getElementById('lightboxDl');
+  const lightboxCounter = document.getElementById('lightboxCounter');
+  const lightPrev = document.getElementById('lightPrev');
+  const lightNext = document.getElementById('lightNext');
+  const lightboxClose = document.getElementById('lightboxClose');
+  const lightboxCloseTop = document.getElementById('lightboxCloseTop');
+  const polaroids = document.getElementById('polaroids');
+  
+  if(!lightbox || !polaroids) return;
+  
+  const items = Array.from(polaroids.querySelectorAll('.polaroid'));
+  let currentIndex = 0;
+  let touchStartX = 0;
+
+  function showImage(idx){
+    if(!items.length) return;
+    currentIndex = (idx + items.length) % items.length;
+    const fig = items[currentIndex];
+    const src = fig.dataset.full || fig.querySelector('img')?.src;
+    const alt = fig.querySelector('img')?.alt || '';
+    lightboxImg.src = src;
+    lightboxImg.alt = alt;
+    if(lightboxDl) lightboxDl.href = src;
+    if(lightboxCounter) lightboxCounter.textContent = `${currentIndex+1} / ${items.length}`;
   }
-});
-document.getElementById('lightboxClose').addEventListener('click', ()=>{ lightbox.classList.remove('show'); lightboxImg.src=''; });
+
+  function openLightbox(idx){
+    console.log('[MrTHP] openLightbox', idx);
+
+    showImage(idx);
+    lightbox.classList.add('show');
+    lightbox.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox(){
+    lightbox.classList.remove('show');
+    lightbox.setAttribute('aria-hidden','true');
+    lightboxImg.src = '';
+    document.body.style.overflow = '';
+  }
+
+  polaroids.addEventListener('click', e=>{
+    console.log('[MrTHP] click polaroid', e.target);
+
+    const fig = e.target.closest('.polaroid');
+    if(!fig) return;
+    const idx = items.indexOf(fig);
+    if(idx >= 0) openLightbox(idx);
+  });
+
+  if(lightPrev) lightPrev.addEventListener('click', e=>{ e.stopPropagation(); showImage(currentIndex-1); });
+  if(lightNext) lightNext.addEventListener('click', e=>{ e.stopPropagation(); showImage(currentIndex+1); });
+  if(lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+  if(lightboxCloseTop) lightboxCloseTop.addEventListener('click', closeLightbox);
+
+  lightbox.addEventListener('click', e=>{
+    if(e.target === lightbox || e.target === lightboxImg) {
+      // clic sur fond ferme, clic sur image ne ferme pas
+      if(e.target === lightbox) closeLightbox();
+    }
+  });
+
+  // swipe
+  lightbox.addEventListener('touchstart', e=>{
+    if(e.touches.length===1) touchStartX = e.touches[0].clientX;
+  }, {passive:true});
+  lightbox.addEventListener('touchend', e=>{
+    if(!touchStartX) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if(Math.abs(dx) > 40){
+      if(dx < 0) showImage(currentIndex+1); else showImage(currentIndex-1);
+    }
+    touchStartX = 0;
+  }, {passive:true});
+
+  // clavier
+  window.addEventListener('keydown', e=>{
+    if(!lightbox.classList.contains('show')) return;
+    if(e.key==='ArrowLeft'){ showImage(currentIndex-1); }
+    else if(e.key==='ArrowRight'){ showImage(currentIndex+1); }
+    else if(e.key==='Escape'){ closeLightbox(); }
+  });
+})();
 </script>
-<script>(function(){document.addEventListener("click",function(e){var a=e.target.closest("[data-product-id]");if(!a)return;e.preventDefault();var pid=a.getAttribute("data-product-id");if(pid)parent.postMessage({type:"ecto-artifact-link-click",productId:pid},"*")})})();</script>
-<script>(function(){document.addEventListener("click",function(e){var a=e.target.closest("[data-product-id]");if(!a)return;e.preventDefault();var pid=a.getAttribute("data-product-id");if(pid)parent.postMessage({type:"ecto-artifact-link-click",productId:pid},"*")})})();</script>
+
 </body>
 </html>
