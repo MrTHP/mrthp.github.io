@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="cosmic">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wallpaper Prompt Generator v6 — Cosmic Edition</title>
+<meta name="description" content="Générateur de prompts de wallpaper : 27 styles dont l'espace, 30+ options, 4 formats, thèmes.">
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem('wpg6_theme') || 'cosmic';
+    document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {
+    document.documentElement.setAttribute('data-theme', 'cosmic');
+  }
+})();
+</script>
+<style>
+/* ============================================================
+   THEMES
+   ============================================================ */
+:root { --radius: 16px; --font: 'JetBrains Mono', 'Cascadia Code', 'SF Mono', 'Segoe UI', system-ui, sans-serif; }
+[data-theme="cosmic"] {
+  --bg: #06070f; --bg2: #0c0e20;
+  --panel: rgba(18,22,44,.55);
+  --panel-strong: rgba(13,16,34,.9);
+  --border: rgba(130,150,255,.16);
+  --border-strong: rgba(130,150,255,.34);
+  --surface: rgba(44,52,96,.55);
+  --surface2: rgba(66,78,140,.7);
+  --text: #e8ecff; --subtext: #aab4e4; --muted: #6d78ab;
+  --accent: #8b7bff; --accent2: #4fc3ff; --accent3: #ff7ad9;
+  --success: #5ee6a8; --danger: #ff6b8b; --warn: #ffd166;
+  --star: #ffe08a;
+  --shadow: 0 12px 44px rgba(0,0,0,.45);
+}
+[data-theme="catppuccin"] {
+  --bg: #1e1e2e; --bg2: #181825;
+  --panel: rgba(24,24,37,.75);
+  --panel-strong: #181825;
+  --border: #313244; --border-strong: #45475a;
+  --surface: #313244; --surface2: #45475a;
+  --text: #cdd6f4; --subtext: #a6adc8; --muted: #6c7086;
+  --accent: #cba6f7; --accent2: #89b4fa; --accent3: #f5c2e7;
+  --success: #a6e3a1; --danger: #f38ba8; --warn: #f9e2af;
+  --star: #f9e2af;
+  --shadow: 0 12px 44px rgba(0,0,0,.4);
+}
+[data-theme="light"] {
+  --bg: #eef1fa; --bg2: #e2e7f6;
+  --panel: rgba(255,255,255,.8);
+  --panel-strong: #ffffff;
+  --border: rgba(30,40,90,.12); --border-strong: rgba(30,40,90,.28);
+  --surface: rgba(232,236,250,.95); --surface2: rgba(214,220,242,1);
+  --text: #171a2b; --subtext: #454d70; --muted: #8188a8;
+  --accent: #6c5ce7; --accent2: #0984e3; --accent3: #e84393;
+  --success: #00a884; --danger: #e5484d; --warn: #c98a00;
+  --star: #e0a800;
+  --shadow: 0 12px 40px rgba(30,40,90,.14);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  background:
+    radial-gradient(1100px 760px at 12% -8%, color-mix(in srgb, var(--accent) 24%, transparent), transparent 62%),
+    radial-gradient(1000px 720px at 102% 4%, color-mix(in srgb, var(--accent2) 20%, transparent), transparent 62%),
+    radial-gradient(1000px 900px at 50% 118%, color-mix(in srgb, var(--accent3) 18%, transparent), transparent 60%),
+    linear-gradient(160deg, var(--bg), var(--bg2));
+  background-attachment: fixed;
+  transition: background .4s ease, color .4s ease;
+}
+#starfield {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  opacity: 1; transition: opacity .5s ease;
+}
+[data-theme="light"] #starfield { opacity: 0; }
+.hidden { display: none !important; }
+.layout { max-width: 1240px; margin: 0 auto; padding: 26px 22px 90px; }
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.site-header { margin-bottom: 22px; }
+.header-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.logo {
+  font-size: 30px; width: 54px; height: 54px; display: grid; place-items: center;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 40%, transparent), color-mix(in srgb, var(--accent2) 35%, transparent));
+  border: 1px solid var(--border-strong); border-radius: 16px;
+  box-shadow: 0 0 30px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
+h1 .grad {
+  background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.ver {
+  font-size: 11px; font-weight: 800; letter-spacing: 1px; padding: 3px 9px; border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff;
+  box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 50%, transparent); -webkit-text-fill-color: #fff;
+}
+.tagline { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
+.header-actions { display: flex; align-items: center; gap: 10px; }
+.ghost-btn {
+  background: var(--panel); border: 1px solid var(--border); color: var(--subtext);
+  padding: 9px 14px; border-radius: 10px; cursor: pointer; font-family: inherit; font-size: 12.5px;
+  font-weight: 600; transition: all .18s; backdrop-filter: blur(10px);
+}
+.ghost-btn:hover { color: var(--text); border-color: var(--border-strong); transform: translateY(-1px); }
+.theme-switch { display: flex; gap: 4px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 4px; backdrop-filter: blur(10px); }
+.theme-switch button {
+  width: 34px; height: 30px; border: none; border-radius: 8px; cursor: pointer;
+  background: transparent; font-size: 15px; transition: all .15s;
+}
+.theme-switch button:hover { background: var(--surface); }
+.theme-switch button.active { background: var(--surface2); box-shadow: inset 0 0 0 1px var(--border-strong); }
+.kbd-hint { margin-top: 14px; font-size: 11.5px; color: var(--muted); line-height: 1.9; }
+.kbd-hint kbd, .shortcut-row kbd, .modal kbd {
+  background: var(--surface); border: 1px solid var(--border-strong); border-radius: 6px;
+  padding: 2px 7px; font-size: 11px; color: var(--subtext); font-family: inherit;
+}
+
+/* ============================================================
+   STATS
+   ============================================================ */
+.stats-bar {
+  display: flex; gap: 14px; flex-wrap: wrap; align-items: center;
+  margin-bottom: 20px; padding: 13px 18px;
+  background: var(--panel); backdrop-filter: blur(14px) saturate(1.3);
+  border: 1px solid var(--border); border-radius: 14px;
+  position: sticky; top: 12px; z-index: 40; box-shadow: var(--shadow);
+}
+.stat-item { font-size: 12px; color: var(--muted); }
+.stat-item strong { color: var(--accent); font-weight: 700; }
+.stat-divider { width: 1px; align-self: stretch; background: var(--border); }
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.grid-main { display: grid; grid-template-columns: 400px 1fr; gap: 20px; align-items: start; }
+@media (max-width: 940px) { .grid-main { grid-template-columns: 1fr; } .stats-bar { position: static; } }
+.panel {
+  background: var(--panel); backdrop-filter: blur(16px) saturate(1.35);
+  -webkit-backdrop-filter: blur(16px) saturate(1.35);
+  border: 1px solid var(--border); border-radius: var(--radius); padding: 20px;
+  box-shadow: var(--shadow), inset 0 1px 0 color-mix(in srgb, #fff 6%, transparent);
+  transition: border-color .2s;
+}
+.panel:hover { border-color: var(--border-strong); }
+.panel-title {
+  font-size: 12px; text-transform: uppercase; letter-spacing: 1.4px; color: var(--subtext);
+  margin-bottom: 14px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.badge {
+  font-size: 10px; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff;
+  padding: 3px 9px; border-radius: 999px; font-weight: 800; letter-spacing: .4px;
+}
+.title-tools { display: flex; align-items: center; gap: 8px; }
+.mini-toggle {
+  background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+  width: 28px; height: 26px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: all .15s;
+}
+.mini-toggle:hover { color: var(--star); border-color: var(--border-strong); }
+.mini-toggle.active { color: var(--star); border-color: var(--star); background: color-mix(in srgb, var(--star) 14%, transparent); }
+
+/* ============================================================
+   SEARCH + STYLES
+   ============================================================ */
+.search-bar {
+  width: 100%; background: color-mix(in srgb, var(--bg) 55%, transparent);
+  border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; color: var(--text);
+  font-size: 13px; margin-bottom: 12px; outline: none; transition: border-color .2s, box-shadow .2s; font-family: inherit;
+}
+.search-bar:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+.search-bar::placeholder { color: var(--muted); }
+.styles-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr));
+  gap: 7px; max-height: 300px; overflow-y: auto; padding-right: 5px;
+}
+.styles-grid::-webkit-scrollbar { width: 7px; }
+.styles-grid::-webkit-scrollbar-track { background: transparent; }
+.styles-grid::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 4px; }
+.style-btn {
+  position: relative; display: flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid transparent; color: var(--subtext);
+  padding: 9px 10px; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 600;
+  transition: all .16s; font-family: inherit; text-align: left; overflow: hidden;
+}
+.style-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--border-strong); transform: translateY(-1px); }
+.style-btn.active {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 85%, transparent), color-mix(in srgb, var(--accent2) 85%, transparent));
+  color: #fff; border-color: transparent; box-shadow: 0 6px 20px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.style-btn .sb-emoji { font-size: 15px; line-height: 1; }
+.style-btn .sb-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.style-btn .sb-new {
+  position: absolute; top: 4px; right: 4px; font-size: 8px; font-weight: 800; letter-spacing: .5px;
+  background: var(--accent3); color: #fff; padding: 1px 5px; border-radius: 6px;
+}
+
+/* ============================================================
+   OPTIONS
+   ============================================================ */
+.option-group { margin-top: 17px; }
+.option-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 1.1px; color: var(--muted); margin-bottom: 8px; font-weight: 700; }
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  background: var(--surface); border: 1px solid transparent; color: var(--subtext);
+  padding: 6px 13px; border-radius: 20px; cursor: pointer; font-size: 12px; transition: all .15s; font-family: inherit;
+}
+.chip:hover { border-color: var(--border-strong); color: var(--text); }
+.chip.active {
+  background: var(--surface2); color: var(--accent); border-color: var(--accent); font-weight: 700;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+.neg-input, .seed-input {
+  width: 100%; background: color-mix(in srgb, var(--bg) 55%, transparent); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 12px; color: var(--text); font-size: 12px; outline: none;
+  font-family: inherit; transition: border-color .2s;
+}
+.neg-input { resize: vertical; min-height: 44px; margin-top: 4px; }
+.neg-input:focus { border-color: var(--danger); }
+.seed-row { display: flex; gap: 7px; align-items: center; }
+.seed-input { flex: 1; }
+.seed-input:focus { border-color: var(--accent2); }
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.gen-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn {
+  padding: 11px 16px; border: none; border-radius: 11px; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: all .16s; font-family: inherit; letter-spacing: .2px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.btn:active { transform: scale(.97); }
+.btn-primary {
+  flex: 1; min-width: 120px; color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  box-shadow: 0 6px 22px color-mix(in srgb, var(--accent) 38%, transparent);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 9px 30px color-mix(in srgb, var(--accent) 55%, transparent); }
+.btn-accent {
+  flex: 1; min-width: 120px; color: #fff;
+  background: linear-gradient(135deg, var(--accent3), var(--accent));
+  box-shadow: 0 6px 22px color-mix(in srgb, var(--accent3) 34%, transparent);
+}
+.btn-accent:hover { transform: translateY(-1px); }
+.btn-secondary { background: var(--surface); color: var(--subtext); border: 1px solid var(--border-strong); }
+.btn-secondary:hover { background: var(--surface2); color: var(--text); }
+.btn-danger { background: var(--surface); color: var(--danger); border: 1px solid var(--border-strong); }
+.btn-danger:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+/* ============================================================
+   PROMPT CARDS
+   ============================================================ */
+.right-col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.prompt-list { display: flex; flex-direction: column; gap: 11px; }
+.prompt-card {
+  --hue: 260;
+  background: color-mix(in srgb, var(--panel-strong) 78%, transparent);
+  border: 1px solid var(--border); border-left: 3px solid hsl(var(--hue) 85% 62%);
+  border-radius: 14px; padding: 15px 18px; position: relative;
+  animation: fadeIn .32s ease-out; transition: border-color .2s, transform .2s, box-shadow .2s;
+}
+.prompt-card:hover { border-color: var(--border-strong); transform: translateY(-1px); box-shadow: var(--shadow); }
+.prompt-card.fresh { box-shadow: 0 0 0 1px hsl(var(--hue) 85% 62% / .35), 0 10px 34px hsl(var(--hue) 85% 55% / .16); }
+.prompt-card.is-fav { border-color: color-mix(in srgb, var(--star) 55%, transparent); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-9px); } to { opacity: 1; transform: translateY(0); } }
+.pc-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.pc-style { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: var(--text); }
+.pc-dot { width: 9px; height: 9px; border-radius: 50%; background: hsl(var(--hue) 85% 62%); box-shadow: 0 0 10px hsl(var(--hue) 85% 62%); }
+.pc-time { font-size: 11px; color: var(--muted); }
+.pc-actions { display: flex; gap: 5px; margin-left: auto; }
+.icon-btn {
+  background: var(--surface); border: 1px solid transparent; color: var(--muted);
+  width: 30px; height: 30px; border-radius: 9px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all .15s; font-size: 14px;
+}
+.icon-btn:hover { background: var(--surface2); color: var(--text); }
+.icon-btn.danger:hover { color: var(--danger); }
+.icon-btn.faved { color: var(--star); text-shadow: 0 0 10px color-mix(in srgb, var(--star) 60%, transparent); }
+.prompt-text {
+  font-size: 13.5px; line-height: 1.75; color: var(--text); white-space: pre-wrap; word-break: break-word;
+  font-family: var(--font);
+}
+.pc-details { margin-top: 11px; }
+.pc-details > summary {
+  cursor: pointer; font-size: 11px; color: var(--muted); list-style: none; user-select: none;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.pc-details > summary::-webkit-details-marker { display: none; }
+.pc-details > summary::before { content: '▸'; transition: transform .15s; }
+.pc-details[open] > summary::before { transform: rotate(90deg); }
+.pc-comp { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
+.pc-comp .c {
+  font-size: 10.5px; background: var(--surface); border: 1px solid var(--border);
+  padding: 3px 9px; border-radius: 999px; color: var(--subtext);
+}
+.pc-comp .c b { color: var(--accent); font-weight: 700; }
+
+/* ============================================================
+   EMPTY
+   ============================================================ */
+.empty-state { text-align: center; padding: 54px 20px; color: var(--muted); }
+.empty-state .emoji { font-size: 44px; margin-bottom: 12px; }
+.empty-state .msg { font-size: 14px; margin-bottom: 16px; }
+
+/* ============================================================
+   TOAST + MODAL
+   ============================================================ */
+.toast {
+  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(110px);
+  background: var(--panel-strong); border: 1px solid var(--border-strong); color: var(--text);
+  padding: 12px 24px; border-radius: 999px; font-size: 13px; font-weight: 700; opacity: 0; z-index: 999;
+  transition: all .32s cubic-bezier(.2,.9,.3,1.2); pointer-events: none; box-shadow: var(--shadow);
+  display: flex; align-items: center; gap: 9px; backdrop-filter: blur(12px);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: var(--success); }
+.toast.error { border-color: var(--danger); }
+.toast.success .dot { color: var(--success); }
+.toast.error .dot { color: var(--danger); }
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(4,5,12,.7); display: none;
+  align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(6px); padding: 18px;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--panel-strong); border: 1px solid var(--border-strong); border-radius: 18px;
+  padding: 26px; max-width: 480px; width: 100%; max-height: 86vh; overflow-y: auto;
+  animation: modalIn .22s ease-out; box-shadow: var(--shadow); backdrop-filter: blur(18px);
+}
+@keyframes modalIn { from { opacity: 0; transform: scale(.95) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.modal h2 { font-size: 18px; color: var(--text); margin-bottom: 16px; }
+.shortcut-list { display: flex; flex-direction: column; gap: 10px; }
+.shortcut-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.shortcut-row span { font-size: 13px; color: var(--subtext); }
+.news-list { display: flex; flex-direction: column; gap: 11px; }
+.news-item { font-size: 13px; color: var(--subtext); line-height: 1.55; display: flex; gap: 10px; }
+.news-item .ni-ico { flex-shrink: 0; }
+.news-item b { color: var(--accent); }
+.modal-close { margin-top: 20px; width: 100%; }
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+
+<div class="layout">
+  <header class="site-header">
+    <div class="header-top">
+      <div class="brand">
+        <span class="logo">🌌</span>
+        <div class="brand-text">
+          <h1><span class="grad">Wallpaper Prompt Generator</span> <span class="ver">v6</span></h1>
+          <p class="tagline" id="tagline">Chargement…</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="ghost-btn" onclick="openModal('newsModal')">🆕 Nouveautés</button>
+        <div class="theme-switch" id="themeSwitch">
+          <button data-theme="cosmic" title="Thème cosmique">🌌</button>
+          <button data-theme="catppuccin" title="Thème Catppuccin">🐱</button>
+          <button data-theme="light" title="Thème clair">☀️</button>
+        </div>
+      </div>
+    </div>
+    <div class="kbd-hint">
+      <kbd>Espace</kbd> générer · <kbd>R</kbd> style aléatoire · <kbd>Ctrl+C</kbd> copier dernier · <kbd>Ctrl+S</kbd> export TXT · <kbd>F</kbd> favori · <kbd>/</kbd> filtrer · <kbd>?</kbd> aide
+    </div>
+  </header>
+
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-item">Style : <strong id="currentStyle">—</strong></div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">Session : <strong id="genCount">0</strong></div>
+    <div class="stat-item">Doublons évités : <strong id="rejected">0</strong></div>
+    <div class="stat-item">Historique : <strong id="histCount">0</strong></div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">★ Favoris : <strong id="favCount">0</strong></div>
+    <div class="stat-item" id="seedStat" hidden>Seed : <strong id="seedVal">—</strong></div>
+  </div>
+
+  <div class="grid-main">
+    <section class="panel">
+      <div class="panel-title">
+        <span>🎨 Styles</span>
+        <span class="badge" id="styleCountBadge">—</span>
+      </div>
+      <input class="search-bar" id="searchBar" placeholder="🔍 Filtrer les styles…" autocomplete="off" />
+      <div class="styles-grid" id="stylesGrid"></div>
+
+      <div class="option-group">
+        <div class="option-label">Batch</div>
+        <div class="chip-row" id="batchRow">
+          <button class="chip active" data-batch="1">×1</button>
+          <button class="chip" data-batch="3">×3</button>
+          <button class="chip" data-batch="5">×5</button>
+          <button class="chip" data-batch="10">×10</button>
+          <button class="chip" data-batch="20">×20</button>
+        </div>
+      </div>
+
+      <div class="option-group">
+        <div class="option-label">Ratio</div>
+        <div class="chip-row" id="ratioRow">
+          <button class="chip active" data-ratio="">Auto</button>
+          <button class="chip" data-ratio=", 16:9">16:9</button>
+          <button class="chip" data-ratio=", 9:16">9:16</button>
+          <button class="chip" data-ratio=", 1:1">1:1</button>
+          <button class="chip" data-ratio=", 4:3">4:3</button>
+          <button class="chip" data-ratio=", 3:2">3:2</button>
+          <button class="chip" data-ratio=", 21:9">21:9</button>
+        </div>
+      </div>
+
+      <div class="option-group">
+        <div class="option-label">Qualité</div>
+        <div class="chip-row" id="qualityRow">
+          <button class="chip active" data-quality=", wallpaper 4K UHD">4K UHD</button>
+          <button class="chip" data-quality=", 8K UHD">8K</button>
+          <button class="chip" data-quality=", HD wallpaper">HD</button>
+          <button class="chip" data-quality="">Aucune</button>
+        </div>
+      </div>
+
+      <div class="option-group">
+        <div class="option-label">Moment</div>
+        <div class="chip-row" id="momentRow">
+          <button class="chip active" data-moment="">Auto</button>
+          <button class="chip" data-moment=", at dawn">Aube</button>
+          <button class="chip" data-moment=", at golden hour">Golden hour</button>
+          <button class="chip" data-moment=", at high noon">Midi</button>
+          <button class="chip" data-moment=", at sunset">Coucher</button>
+          <button class="chip" data-moment=", at night under the stars">Nuit</button>
+          <button class="chip" data-moment=", during the blue hour">Heure bleue</button>
+        </div>
+      </div>
+
+      <div class="option-group">
+        <div class="option-label">Détail</div>
+        <div class="chip-row" id="detailRow">
+          <button class="chip active" data-detail="">Standard</button>
+          <button class="chip" data-detail=", highly detailed">Détaillé</button>
+          <button class="chip" data-detail=", ultra detailed, sharp focus">Ultra</button>
+          <button class="chip" data-detail=", insanely detailed, intricate textures, hyper-detailed">Extrême</button>
+        </div>
+      </div>
+
+      <div class="option-group">
+        <div class="option-label">Format de prompt</div>
+        <div class="chip-row" id="formatRow">
+          <button class="chip active" data-format="classic">Classique</button>
+          <button class="chip" data-format="tags">Tags SD</button>
+          <button class="chip" data-format="prose">Prose</button>
+          <button class="chip" data-format="weighted">Pondéré</button>
+        </div>
+      </div>
+
+      <div class="option-group">
+        <div class="option-label">Seed (reproductible)</div>
+        <div class="seed-row">
+          <input class="seed-input" id="seedInput" type="number" min="0" placeholder="aléatoire" />
+          <button class="btn btn-secondary" onclick="randomSeed()" title="Seed aléatoire">🎲</button>
+          <button class="btn btn-secondary" onclick="applySeed()" title="Appliquer la seed">↺</button>
+        </div>
+      </div>
+
+      <div class="option-group">
+        <div class="option-label">Negative prompt</div>
+        <textarea class="neg-input" id="negInput" rows="2" placeholder="blurry, low quality, watermark, text…"></textarea>
+      </div>
+
+      <div class="gen-actions" style="margin-top: 22px;">
+        <button class="btn btn-primary" onclick="generate()">⚡ Générer</button>
+        <button class="btn btn-accent" onclick="surprise()">🎲 Surprise</button>
+      </div>
+      <div class="gen-actions" style="margin-top: 8px;">
+        <button class="btn btn-secondary" onclick="exportPrompts('txt')">💾 TXT</button>
+        <button class="btn btn-secondary" onclick="exportPrompts('json')">📦 JSON</button>
+        <button class="btn btn-secondary" onclick="exportPrompts('csv')">📊 CSV</button>
+      </div>
+      <div class="gen-actions" style="margin-top: 8px;">
+        <button class="btn btn-secondary" onclick="copyAll()">📋 Copier tout</button>
+        <button class="btn btn-danger" onclick="confirmReset()">🗑️ Vider</button>
+      </div>
+    </section>
+
+    <section class="right-col" id="rightCol">
+      <div class="panel">
+        <div class="panel-title">
+          <span>✨ Prompts générés</span>
+          <span class="title-tools">
+            <button class="mini-toggle" id="favFilter" title="Afficher seulement les favoris">★</button>
+            <span class="badge" id="sessionBadge">0</span>
+          </span>
+        </div>
+        <div class="prompt-list" id="promptList">
+          <div class="empty-state">
+            <div class="emoji">🌠</div>
+            <div class="msg">Appuie sur <kbd>Espace</kbd> ou clique « Générer »</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span class="dot">●</span><span id="toastMsg">Copié !</span></div>
+
+<div class="modal-overlay" id="shortcutModal" onclick="if(event.target===this)closeModal('shortcutModal')">
+  <div class="modal">
+    <h2>⌨️ Raccourcis clavier</h2>
+    <div class="shortcut-list">
+      <div class="shortcut-row"><span>Générer un prompt</span><kbd>Espace</kbd></div>
+      <div class="shortcut-row"><span>Style aléatoire</span><kbd>R</kbd></div>
+      <div class="shortcut-row"><span>Copier le dernier prompt</span><kbd>Ctrl+C</kbd></div>
+      <div class="shortcut-row"><span>Exporter en TXT</span><kbd>Ctrl+S</kbd></div>
+      <div class="shortcut-row"><span>Basculer favori (dernier)</span><kbd>F</kbd></div>
+      <div class="shortcut-row"><span>Filtrer les styles</span><kbd>/</kbd></div>
+      <div class="shortcut-row"><span>Vider la session</span><kbd>Shift+R</kbd></div>
+      <div class="shortcut-row"><span>Afficher ce panneau</span><kbd>?</kbd></div>
+    </div>
+    <button class="btn btn-secondary modal-close" onclick="closeModal('shortcutModal')">Fermer</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="newsModal" onclick="if(event.target===this)closeModal('newsModal')">
+  <div class="modal">
+    <h2>🆕 Nouveautés de la v6</h2>
+    <div class="news-list">
+      <div class="news-item"><span class="ni-ico">🌌</span><span><b>4 nouveaux styles</b> : Espace, Vaporwave, Sous-marin et Mythologie (27 au total).</span></div>
+      <div class="news-item"><span class="ni-ico">🎨</span><span><b>Nouveau look</b> « Cosmic Glass » : fond étoilé animé, effets de verre et dégradés.</span></div>
+      <div class="news-item"><span class="ni-ico">🌈</span><span><b>3 thèmes</b> commutables : Cosmique, Catppuccin et Clair (mémorisés).</span></div>
+      <div class="news-item"><span class="ni-ico">🧩</span><span><b>Plus d'options</b> : moment de la journée, niveau de détail, ratio, qualité étendus.</span></div>
+      <div class="news-item"><span class="ni-ico">📐</span><span><b>4 formats</b> de prompt : Classique, Tags SD, Prose et Pondéré.</span></div>
+      <div class="news-item"><span class="ni-ico">🎯</span><span><b>Seed reproductible</b> + bouton « Surprise » et style aléatoire.</span></div>
+      <div class="news-item"><span class="ni-ico">★</span><span><b>Favoris</b> par prompt et filtre « favoris seulement ».</span></div>
+      <div class="news-item"><span class="ni-ico">📊</span><span><b>Export CSV</b> en plus de TXT et JSON, et composants détaillés par prompt.</span></div>
+      <div class="news-item"><span class="ni-ico">🐛</span><span><b>Corrections</b> : style Art Déco complété, échappement HTML, doublons de qualité, raccourcis clavier.</span></div>
+    </div>
+    <button class="btn btn-secondary modal-close" onclick="closeModal('newsModal')">Fermer</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA — 28 STYLES
+// ============================================================
+const DATA = {
+  christmas: {
+    subjects: ["decorated Christmas tree in living room","Santa Claus riding sleigh at night","reindeer pulling sled through snowy forest","cozy cabin with lit windows in snowstorm","Christmas market with wooden stalls","children building snowman","stockings hung on fireplace mantel","gingerbread house with candy decorations","Christmas Eve dinner with family","village covered in snow under starry sky","elves working in Santa's workshop","hot cocoa with marshmallows by window","gifts pile under twinkling tree","frozen lake with pine trees","horse-drawn sleigh on country road","northern lights over snowy village","cat sleeping near Christmas tree","vintage red truck carrying Christmas tree","deer standing in snowy clearing","christmas wreath on wooden door","ice skaters on pond at dusk","toy train circling around Christmas tree","snow globe city inside glass","candles and pine cones centerpiece","santa's reindeer barn lit with lanterns","postman delivering parcels in the snow","grandmother knitting by the fire","snow-covered church with stained glass","sleigh bells and red ribbons on harness","children peeking at gifts on Christmas morning"],
+    moods: ["cozy","magical","festive","heartwarming","nostalgic","whimsical","joyful","peaceful","enchanting","merry","sparkling","intimate","generous","wondrous","snug","merry and bright"],
+    colors: ["crimson red and emerald green","gold and deep green","ivory white and champagne","midnight blue and silver","warm red and cinnamon brown","snow white and glittering gold","burgundy and pine green","candy red and white","deep green and copper","plum and gold","frost blue and warm amber","red plaid and cream"],
+    lighting: ["twinkling fairy lights","fireplace warm glow","candlelight on Christmas table","moonlight on fresh snow","golden window light in the night","string lights bokeh","lantern light at Christmas market","soft Christmas morning light","aurora borealis glow","warm street lamps in snowfall","tree lights reflected on ornaments","starlight over rooftops"],
+    angles: ["low angle looking up at towering tree","wide establishing of snowy village","intimate close-up on ornament","through frosted window","aerial of snow-covered town","fireplace mantel eye-level","POV child looking at presents","bird's eye of Christmas dinner table","looking down snowy lane at dusk","macro on snowflake and pine needles"],
+    techniques: ["cozy holiday illustration","Christmas card painting","Thomas Kinkade warm glow","digital painting","storybook illustration","matte painting","cinematic photography","folk art painting","vintage Christmas postcard","Hallmark holiday aesthetic"],
+    artists: ["Thomas Kinkade style","Norman Rockwell warmth","Coca-Cola vintage Santa art","Clement Clarke Moore illustration","Jan Brett storybook","Charles Schulz coziness","Disney holiday classic","Harry Potter Great Christmas aesthetic","vintage Soviet New Year card","Haddon Sundblom Santa style"],
+    details: ["falling snowflakes","wrapped gifts with red ribbons","candy canes","pine garlands and holly","steaming mugs","snow-laden fir branches","golden baubles","sled leaning on cabin wall","mittens drying by fire","reindeer tracks in snow","tinsel sparkle","wreaths with red berries"]
+  },
+  cyberpunk: {
+    subjects: ["neon-lit alley","cybernetic samurai","holographic geisha","megacorporation tower","street hacker","flying car chase","cyberpunk cat with implants","rainy Tokyo street","android detective","neon marketplace","cybernetic bounty hunter","data courier on a hoverbike","black market clinic","rooftop sniper with cyber-eye","underground fight club","corporate executive in glass office","street food vendor with robotic arms","hacker den with multiple screens","cyber-enhanced street musician","abandoned server farm","neon church with digital saints","cyborg geisha in tea house","illegal brain-dance parlor","aerial highway between skyscrapers","cyberpunk ramen shop","augmented reality graffiti wall","corporate war battlefield","netrunner jacked into the matrix","cyber-modded rickshaw driver","black ice firewall visualization"],
+    moods: ["dystopian","noir","electric","gritty","melancholic","hyperactive","oppressive","frenetic","claustrophobic","paranoid","seductive","chaotic","lonely","dangerous","decadent","overwhelming"],
+    colors: ["neon pink and cyan","electric blue and magenta","toxic green and purple","deep violet and hot pink","acid yellow and black","crimson and chrome","teal and amber","blood orange and steel gray","ultraviolet and lime","rose gold and midnight blue","cyan and rust","fuchsia and oil-slick black"],
+    lighting: ["neon signs reflections","volumetric fog with laser beams","harsh spotlight in rain","holographic glow","flickering streetlights","bioluminescent accents","CRT screen glow on faces","searchlights cutting through smog","pulsing LED strips","muzzle flashes in darkness","neon puddle reflections","corporate logo projections"],
+    angles: ["low angle looking up","dutch angle","aerial drone shot","over-the-shoulder","extreme close-up on eyes","wide establishing shot","worm's eye view","through a rain-streaked window","security camera POV","fisheye helmet cam","split diopter shot","mirror reflection composition"],
+    techniques: ["ultra detailed","cinematic lighting","ray tracing","8k","volumetric fog","chromatic aberration","film grain","anamorphic lens flare","shallow depth of field","motion blur","high contrast","HDR neon","digital painting","concept art"],
+    artists: ["Syd Mead style","Beeple style","Katsuhiro Otomo inspired","Ghost in the Shell aesthetic","Blade Runner 2049 look","Masamune Shirow influence","Simon Bisley cyberpunk","Jim Burns aesthetic","Craig Mullins digital","Maciej Kuciara style"],
+    details: ["rain-soaked pavement","steam rising from vents","Japanese kanji signs","cables hanging everywhere","crowd of masked people","smoke and sparks","holographic advertisements","drones flying overhead","graffiti in alien script","puddles reflecting neon","flying cars in distance","augmented reality overlays","discarded cybernetic parts","glitching screens","corporate propaganda posters"]
+  },
+  fantasy: {
+    subjects: ["ancient dragon perched on a cliff","elven city in the clouds","mystic forest with glowing mushrooms","wizard's tower at sunset","knight facing a kraken","floating islands with waterfalls","crystal cave with runes","phoenix rising from ashes","giant world tree","cursed castle in the mist","orc war camp","fairy queen on a throne of flowers","dwarven forge deep underground","necromancer's black citadel","halfling village at harvest","sea serpent attacking a galleon","unicorn in a moonlit glade","golem guardian of ancient ruins","witch's cottage in the swamp","paladin confronting a lich","centaur herd on the plains","mermaid kingdom under the sea","griffin aerie on a mountain peak","bard performing in a tavern","druid circle at solstice","giant sleeping under a hill","valkyrie descending from Valhalla","cursed prince in beast form","enchantress in her crystal tower","warlock making a pact with a demon"],
+    moods: ["epic","mystical","ethereal","majestic","enchanted","legendary","ominous","whimsical","dark","heroic","tragic","sacred","forbidden","ancient","arcane","serene"],
+    colors: ["golden hour light","emerald and sapphire tones","amber and deep purple","silver moonlight","blood red and obsidian","pastel enchanted glow","forest green and earth brown","royal blue and gold","fiery orange and ash gray","misty lavender and pearl","jade and bronze","crimson and ivory"],
+    lighting: ["god rays through clouds","magical aura","torchlight in darkness","moonlit silver glow","bioluminescent flora","sunset rim light","firelight flicker","enchanted lantern glow","crystal refraction","storm lightning","dawn breaking through mist","candlelight in stone halls"],
+    angles: ["epic wide shot","heroic low angle","bird's eye view","intimate medium shot","dramatic diagonal composition","through ancient archway","over the hero's shoulder","looking up at towering figure","panoramic landscape","close-up on magical artifact"],
+    techniques: ["oil painting style","matte painting","hyperrealistic","fantasy concept art","dramatic composition","rich textures","impasto brushwork","digital painting","renaissance inspired","baroque lighting","pre-raphaelite detail","art nouveau curves"],
+    artists: ["Greg Rutkowski style","Craig Mullins inspired","Alan Lee aesthetic","Frazetta influence","Brom dark fantasy style","John Howe style","Todd Lockwood aesthetic","Larry Elmore classic","Magali Villeneuve style","Jesper Ejsing look","Terese Nielsen aesthetic","Donato Giancola style"],
+    details: ["swirling magical particles","ancient runes glowing","dramatic clouds","distant mountains","flying creatures in the sky","mystical fog","falling leaves","floating stones","glowing eyes in darkness","battle damage on armor","vines overgrown on ruins","scattered spell components","banners waving in wind","treasure glinting","magical circles on the ground"]
+  },
+  scifi: {
+    subjects: ["abandoned space station","alien planet with twin suns","warp drive activation","colony ship approaching a nebula","robot gardener on Mars","cybernetic organism","dyson sphere under construction","first contact scene","asteroid mining operation","cryogenic chamber awakening","alien marketplace","derelict generation ship","terraforming engine on barren world","space elevator from orbit","quantum computer core","synthetic human in lab","alien artifact discovery","interstellar battle aftermath","orbital habitat interior","black hole research vessel","teleportation gate activation","alien zoo on Earth","post-human civilization","rogue AI's digital realm","deep space probe encountering anomaly","military space marine drop pod","xenobiology lab with specimens","asteroid belt settlement","time dilation visualization","galactic council chamber"],
+    moods: ["awe-inspiring","isolated","futuristic","cosmic","clinical","mysterious","vast","tense","sterile","wonder-filled","terrifying","melancholic","transcendent","alien","claustrophobic","expansive"],
+    colors: ["deep space blues and starlight","warm orange and cold blue","iridescent nebula colors","monochrome with red accents","sterile white and chrome","alien bioluminescence","titanium and plasma orange","void black with violet highlights","hydroponic green and steel","solar flare gold","cryogenic cyan","xenomorph acid green"],
+    lighting: ["starlight rim","holographic interface glow","emergency red lighting","nebulas ambient glow","sun flare behind planet","bioluminescent alien light","reactor core glow","laser beam crossings","plasma containment light","airlock warning lights","distant supernova","artificial daylight panels"],
+    angles: ["extreme wide shot","pov from helmet","orbital view","tight interior shot","symmetrical composition","through viewport window","zero gravity floating perspective","looking up at massive structure","security feed angle","macro on alien specimen"],
+    techniques: ["photorealistic","concept art","wide angle","HDR","astrophotography style","cinematic sci-fi","hard surface modeling","vfx quality","unreal engine render","NASA photography inspired","scientific illustration","retro sci-fi poster"],
+    artists: ["Simon Stålenhag style","Chris Foss inspired","Syd Mead aesthetic","2001 A Space Odyssey look","Arrival movie aesthetic","John Berkey style","Ralph McQuarrie influence","Ian McQue style","Ryan Church concept","Doug Chiang aesthetic","Sparth art direction","Craig Mullins sci-fi"],
+    details: ["distant stars","floating debris","holographic displays","condensation on visor","alien flora","worn metal textures","frost on airlock","cable bundles","warning labels in alien script","star maps on walls","zero-g floating objects","plasma conduits glowing","dust particles in light beams","cracked helmet visor","data streams on screens"]
+  },
+  nature: {
+    subjects: ["misty mountain lake at dawn","ancient redwood forest","northern lights over snowy peaks","cherry blossom path","underwater coral reef","desert oasis under stars","volcanic eruption at twilight","autumn forest with golden leaves","frozen waterfall","tropical rainforest canopy","lavender field at sunset","stormy ocean cliff","bamboo forest in fog","alpine meadow with wildflowers","glacier calving into sea","mangrove swamp at golden hour","sand dunes at sunrise","prairie thunderstorm","canyon with river below","tundra with migrating herd","kelp forest underwater","wildflower super bloom","tide pools at low tide","sequoia grove with sunbeams","fjord with mirror reflection","monsoon rain on rice terraces","sahara starry night","redwood cathedral","crystal clear mountain stream","bioluminescent bay at night"],
+    moods: ["serene","breathtaking","peaceful","wild","contemplative","pristine","dramatic","majestic","intimate","raw","timeless","sacred","untamed","tranquil","powerful","ethereal"],
+    colors: ["warm earth tones","cool blues and greens","golden sunset palette","misty pastels","vibrant autumn hues","deep ocean blues","desert ochre and sienna","arctic white and blue","tropical vivid greens","volcanic red and black","forest emerald and moss","twilight purple and pink"],
+    lighting: ["golden hour","blue hour","backlit sun","soft overcast light","dramatic storm light","first light of dawn","dappled forest light","moonlit night","midday harsh sun","fog-filtered glow","starlight","firelight"],
+    angles: ["panoramic wide angle","intimate macro","aerial drone shot","reflection shot","leading lines composition","through natural frame","low ground level","looking up at canopy","silhouette against sky","close-up with blurred background"],
+    techniques: ["landscape photography","long exposure","ultra wide","national geographic style","8k resolution","focus stacking","HDR natural","infrared photography","black and white fine art","tilt shift miniature","astrophotography","underwater photography"],
+    artists: ["Ansel Adams inspired","Peter Lik aesthetic","nature documentary style","Sebastião Salgado look","Galen Rowell lighting","Frans Lanting wildlife","Jimmy Chin adventure","Cristian Donghiu landscape","Marc Adamus dramatic","Max Rive epic vistas","Elia Locardi alpine","Guy Tal intimate landscapes"],
+    details: ["morning dew drops","rays through trees","distant silhouettes","reflections in water","wildlife in frame","atmospheric haze","falling snow","drifting mist","ripples on water","blooming flowers","weathered rock textures","moss on branches","cloud formations","sun stars in sky","footprints in sand"]
+  },
+  abstract: {
+    subjects: ["fluid ink in water","fractal geometry","shattered glass pattern","liquid metal waves","geometric shapes in motion","smoke tendrils","crystalline structures","digital glitch art","molten glass flow","magnetic ferrofluid","sound wave visualization","cellular automata","mandelbrot zoom","topographic contours","interference patterns","caustic light patterns","ferrofluid spikes","ink marbling","cymatics sand patterns","reaction-diffusion textures","voronoi cells","strange attractors","perlin noise landscape","generative flow field","particle swarm","tesseract projection","kaleidoscope symmetry","moiré pattern overlay","fluid simulation","crystal growth time-lapse"],
+    moods: ["dynamic","hypnotic","chaotic","harmonious","surreal","meditative","explosive","flowing","mathematical","organic","mechanical","ethereal","aggressive","calm","intricate","minimal"],
+    colors: ["iridescent rainbow","monochrome gradient","neon on black","pastel dreamscape","deep jewel tones","metallic chrome","duotone contrast","sepia with gold accents","cyanotype blue","sunset gradient","acid neon palette","muted earth tones"],
+    lighting: ["studio rim light","volumetric glow","caustics","subsurface scattering","neon emission","specular highlights","backlit translucency","laser lighting","fiber optic glow","phosphorescent","holographic reflection","prismatic dispersion"],
+    angles: ["macro close-up","top-down flat lay","dynamic diagonal","symmetrical center","exploded view","isometric","impossible perspective","infinite zoom","kaleidoscopic","extreme wide abstract"],
+    techniques: ["macro photography","double exposure","3D render","generative art","high contrast","procedural generation","fluid simulation","particle system","shader art","long exposure light painting","chemigram","cyanotype process"],
+    artists: ["Beeple style","Refik Anadol inspired","contemporary digital art","teamLab aesthetic","Ernst Haeckel influence","M.C. Escher geometry","Bridget Riley op-art","James Turrell light","Olafur Eliasson installation","Casey Reas generative","Mario Klingemann AI art","Andreas Gursky scale"],
+    details: ["fine particles","light refractions","motion blur","depth of field","subtle grain","sharp edges","smooth gradients","intricate patterns","layered transparencies","glitch artifacts","noise texture","specular reflections"]
+  },
+  minimal: {
+    subjects: ["single tree on a hill","lone figure on a beach","geometric sun","simple mountain silhouette","one bird in flight","minimalist moon","empty road","single flower","paper boat on water","lone ladder to nowhere","circle in sand","single chair in empty room","folded paper crane","single drop of water","thin horizon line","one window in blank wall","solitary bench","floating feather","single footprint","cracked egg","unlit candle","empty picture frame","single stair step","one open door","paper airplane mid-flight","single cloud","bare branch","empty swing","one lit match","unfolded map"],
+    moods: ["calm","contemplative","pure","quiet","zen","poetic","solitary","timeless","melancholic","hopeful","mysterious","weightless","airy","sparse","deliberate","hushed"],
+    colors: ["black and white","muted pastels","single accent color","soft gradients","monochrome","off-white and charcoal","bone and ink","cream and terracotta","pale blue and gray","sage and sand","dusty rose and slate","warm gray and mustard"],
+    lighting: ["soft diffused light","single directional light","flat even lighting","gentle shadow","high key","low key","overcast even","single window light","backlit silhouette","subtle gradient light"],
+    angles: ["perfectly centered","rule of thirds","top-down","profile silhouette","negative space composition","extreme wide with tiny subject","eye level simple","looking straight down","45-degree isometric","horizontal band composition"],
+    techniques: ["flat design","vector art","negative space","clean lines","minimalist composition","swiss design","bauhaus inspired","screen print style","linocut aesthetic","woodblock print","risograph look","ink wash"],
+    artists: ["Malika Favre style","Swiss design inspired","contemporary minimalism","Dieter Rams aesthetic","Saul Bass influence","Josef Albers color","Agnes Martin grids","Ellsworth Kelly shapes","Charley Harper wildlife","Paul Rand graphic","Shiro Kuramata furniture","Japanese wabi-sabi"],
+    details: ["subtle texture","single shadow","faint gradient","one accent element","delicate line work","whisper of color","fine grain","paper texture","slight imperfection","thin border","hairline detail","barely-there pattern"]
+  },
+  anime: {
+    subjects: ["schoolgirl with umbrella in rain","mecha pilot in cockpit","magical girl transformation","samurai under cherry blossoms","studio rooftop at sunset","train station in snow","cat spirit in forest","pirate ship in the sky","lonely robot in a field","festival at night","sword fight on a bridge","library with floating books","ramen shop at midnight","bicycle ride through countryside","abandoned amusement park","shrine maiden performing ritual","high school baseball final","idol concert stage","detective in rainy alley","witch brewing potions","space bounty hunter","onigiri picnic by river","dragon rider over clouds","tsundere at locker","isekai hero arrival","mecha battle in city ruins","yokai at hot spring","train conductor on spirit railway","bento box on desk","graduation day under sakura"],
+    moods: ["nostalgic","dramatic","whimsical","emotional","energetic","dreamy","melancholic","epic","cozy","bittersweet","playful","intense","serene","chaotic","heartwarming","lonely"],
+    colors: ["vibrant anime palette","sunset orange and purple","soft pastel","high contrast cel-shaded","cool blue hour","warm festival lanterns","sakura pink and sky blue","deep night indigo","autumn maple tones","winter ice blue","summer vivid","spring fresh green"],
+    lighting: ["shinkai-style god rays","lens flare sunset","soft ambient glow","dramatic backlight","neon night glow","golden magic hour","lantern warm light","moonlit silver","screen glow on face","firefly sparkles","stage spotlight","morning window light"],
+    angles: ["dynamic action angle","emotional close-up","wide scenic shot","low angle hero shot","overhead establishing","through window frame","reflection in eye","speed lines action","speed-ramped slow-mo","intimate two-shot"],
+    techniques: ["anime key visual","makoto shinkai style lighting","studio ghibli aesthetic","detailed background art","cel shading","sakuga animation frame","watercolor backgrounds","90s anime aesthetic","modern digital anime","chibi style","shoujo sparkles","seinen gritty"],
+    artists: ["Makoto Shinkai style","Studio Ghibli inspired","Kyoto Animation aesthetic","Trigger studio energy","Ufotable visual quality","Hideaki Anno composition","Hayao Miyazaki warmth","Satoshi Kon psychological","Mamoru Hosoda color","Naoko Yamada soft","Hiroyuki Imaishi dynamic","Yoshitaka Amano ethereal"],
+    details: ["floating petals","distant city skyline","power lines","dramatic clouds","sparkles and light particles","wind-blown hair","tear drops glistening","steam from food","train passing by","school bag on floor","cicada summer haze","snowflakes on lashes","fireworks in sky","handwritten letter","cat tail flick"]
+  },
+  retro: {
+    subjects: ["80s sports car at sunset","arcade room with neon","vintage astronaut","retrofuturistic city","VHS sunset with palm trees","old school computer setup","synthwave grid landscape","cassette tape and boombox","diner at midnight","roller rink","drive-in cinema","old TV with static","polaroid family photo","vintage gas station","retro shopping mall","classic video game arcade","old radio on wooden table","vinyl record player","retro telephone booth","vintage motel sign","old cinema marquee","classic bowling alley","retro laundromat","vintage beach scene","old school gym","classic soda fountain","retro post office","vintage library","old train station","classic airport lounge"],
+    moods: ["nostalgic","vaporwave","synthwave","dreamy","kitsch","radical","melancholic","electric","faded","warm","cheesy","cool","lonely","carefree","sentimental","glitzy"],
+    colors: ["sunset gradient pink-orange-purple","neon grid colors","faded VHS tones","chrome and hot pink","teal and magenta","washed out polaroid","mustard and avocado","harvest gold and brown","pastel Miami","candy apple red","electric blue and silver","sepia and gold"],
+    lighting: ["neon glow","sunset backlight","crt screen glow","arcade cabinet light","chrome reflections","hazy atmospheric glow","fluorescent tubes","incandescent warm","drive-in projector beam","pinball machine glow","jukebox light","candlelight booth"],
+    angles: ["symmetrical one-point perspective","low angle hero","polaroid snapshot","fisheye lens","wide cinematic","through rearview mirror","dashboard POV","booth-level diner shot","looking up at sign","arcade cabinet POV"],
+    techniques: ["vaporwave aesthetic","synthwave style","retro 80s","grain filter","scanlines","VHS degradation","chromatic aberration","halftone dots","airbrush technique","polaroid instant","kodachrome film","technicolor"],
+    artists: ["retrowave artist style","80s airbrush aesthetic","Patrick Nagel inspired","John Hughes movie poster","Miami Vice visual","Ridley Scott blade runner","John Carpenter films","Stephen King cover art","Heavy Metal magazine","Mœbius comics","Hajime Sorayama chrome","Andy Warhol pop"],
+    details: ["palm tree silhouettes","grid floor","chrome sun","faded photograph texture","neon signs","retro typography","cassette tapes scattered","pizza boxes","cigarette smoke","checkered floor","stained glass window","jukebox selection","arcade high scores","folded newspaper","melting ice cream"]
+  },
+  steampunk: {
+    subjects: ["brass airship over Victorian London","clockwork automaton in workshop","steampunk inventor with goggles","giant mechanical spider","steam-powered train in mountains","dirigible docking at tower","clockwork ballerina","steampunk explorer with map","brass submarine underwater","gear-filled cathedral","steam-powered knight","Victorian lady with mechanical arm","zeppelin battle in clouds","clocktower at midnight","steam-powered carriage on cobblestones","brass telescope observatory","mechanical owl perched on books","steampunk alchemist lab","giant clock face with gears","steam-powered factory interior","airship captain at wheel","brass diving suit on ocean floor","mechanical dragon in flight","steampunk street market","cogwork heart in glass jar","Victorian greenhouse with steam pipes","steam-powered organ","brass compass on old map","steam-powered tank in desert","clockwork bird in cage"],
+    moods: ["adventurous","mechanical","Victorian","inventive","nostalgic","industrial","whimsical","grandiose","mysterious","romantic","eccentric","scholarly","bold","ornate","curious","majestic"],
+    colors: ["brass and copper","sepia and mahogany","verdigris green and bronze","ivory and dark wood","rust and aged gold","navy and brass","burgundy and bronze","cream and dark leather","emerald and copper","parchment and ink","teal and brass","cognac and steel"],
+    lighting: ["gas lamp glow","candlelight in brass fixtures","steam-filled warm light","fireplace flicker","stained glass colored light","brass-reflected warm glow","lantern in fog","boiler fire glow","spotlight through porthole","dappled library light"],
+    angles: ["low angle hero shot","detailed macro on gears","wide establishing of airship","over-the-shoulder inventor","bird's eye of city","through brass telescope","cross-section cutaway","profile silhouette","dutch angle action","intimate close-up on gadget"],
+    techniques: ["detailed illustration","concept art","digital painting","Victorian engraving style","steampunk concept","ornate detail","mechanical cross-section","oil painting","etching inspired","art nouveau steampunk"],
+    artists: ["Brian Despain style","James Gurney Dinotopia","Chesley Bonestell influence","Victorian illustration","Gustave Doré engraving","Alphonse Mucha art nouveau","Kim Jung Gi sketching","Ian McQue steampunk","John Picacio cover art","Yuko Shimizu illustration"],
+    details: ["exposed gears and cogs","steam vents","brass rivets","leather straps","Victorian typography","pocket watch chains","copper pipes","leather-bound books","monocle reflection","ticking clock hands","pressure gauges","brass fittings","worn leather gloves","ink-stained papers","hissing valves"]
+  },
+  solarpunk: {
+    subjects: ["vertical forest skyscraper","solar-powered floating village","community garden on rooftop","wind turbine field at sunset","bioluminescent city at night","glass greenhouse city","solar sail boat on clean ocean","urban farm with bees","bamboo bridge over river","solar-powered train through forest","vertical hydroponic tower","eco-hamlet in the hills","solar panel field with wildflowers","treehouse library","recycled material marketplace","wind-powered streetcars","coral restoration underwater","solar-powered desalination plant","green roof neighborhood","permaculture community","electric bicycle through garden city","algae-powered streetlights","re-wilded urban park","solar-powered school","mangrove restoration project","clean energy control room","community compost center","bird-friendly architecture","solar-powered greenhouse home","regenerative ocean farm"],
+    moods: ["hopeful","utopian","harmonious","vibrant","peaceful","optimistic","lush","sustainable","joyful","regenerative","communal","bright","serene","innovative","grounded","alive"],
+    colors: ["solar gold and leaf green","sky blue and terracotta","fresh green and warm white","ocean teal and sand","sunrise orange and sage","moss green and sky","terracotta and olive","bright yellow and forest","aqua and cream","citrus orange and leaf","lavender and sunflower","seafoam and clay"],
+    lighting: ["golden hour through leaves","bright natural daylight","bioluminescent night glow","solar panel reflections","soft greenhouse light","warm sunset on green roof","dappled forest light","clean LED warm white","morning sun through vines","moonlit garden"],
+    angles: ["aerial drone of green city","eye-level garden path","looking up at vertical forest","through vine-covered arch","wide panoramic eco-city","intimate macro on plant","low angle solar panel","community gathering wide shot","balcony garden POV","underwater coral view"],
+    techniques: ["solarpunk concept art","utopian illustration","bright digital painting","architectural visualization","eco-futurism","optimistic sci-fi","clean line art with color","watercolor landscape","bright matte painting","studio ghibli solarpunk"],
+    artists: ["Studio Ghibli solarpunk","Kim Stanley Robinson aesthetic","Solarpunk art movement","Moebius eco-futurism","Hayao Miyazaki nature","Ian Miller green vision","John Harris eco-art","Stephan Martiniere utopia","Craig Mullins bright","Loish vibrant color"],
+    details: ["climbing vines on buildings","solar panels on every roof","birds and butterflies","community gardens","wind turbines in distance","bicycle paths","rainwater collection","bees pollinating flowers","children playing outside","recycled material art","vertical gardens","clean rivers","fruit trees in streets","people sharing meals","wind chimes"]
+  },
+  gothic: {
+    subjects: ["cathedral with flying buttresses","vampire lord in castle","gargoyle perched on spire","funeral procession in fog","gothic heroine in black gown","haunted abbey ruins","cursed knight in black armor","witch's tower under full moon","crowded cemetery at midnight","grand ballroom with chandelier","iron gate to forbidden garden","tomb of forgotten king","black rose in iron vase","cloister with hooded monks","gothic library with tall windows","demon summoning ritual","stone bridge over dark river","orphanage on stormy night","clock tower striking midnight","gothic opera house","candlelit chapel","mausoleum in winter","black swan on dark lake","gothic wedding in ruins","effigy on stone sarcophagus","bell tower in storm","iron maiden chamber","gothic staircase spiraling up","rose window with colored light","crypt with ancient coffins"],
+    moods: ["dark","melancholic","haunting","romantic","ominous","elegant","tragic","mysterious","solemn","decadent","forbidden","eerie","sublime","macabre","regal","doomed"],
+    colors: ["black and crimson","deep purple and silver","midnight blue and gold","blood red and ivory","charcoal and burgundy","black and emerald","obsidian and amethyst","dark rose and pewter","black and antique gold","ink blue and rust","black and bone white","plum and iron gray"],
+    lighting: ["candlelight flicker","moonlight through stained glass","single shaft of light","torch-lit stone halls","cold blue moonlight","chandelier glow","fireplace in dark room","lantern in crypt","lightning flash","faint dawn through window","candlelit altar","volumetric fog with light beams"],
+    angles: ["low angle looking up at spires","through iron gate","long corridor perspective","dramatic diagonal","bird's eye of castle","close-up on gargoyle face","silhouette in doorway","over the shoulder","reflection in dark mirror","extreme wide of ruins"],
+    techniques: ["gothic illustration","dark romanticism","oil painting","baroque lighting","chiaroscuro","engraving style","concept art","matte painting","caravaggio inspired","dark fantasy art"],
+    artists: ["Gustave Doré style","Caspar David Friedrich","Caravaggio chiaroscuro","Zdzisław Beksiński dark","Gerald Brom gothic","Francisco Goya dark","John Martin epic","Henry Fuseli sublime","Brom dark romantic","Louis Wain gothic","Edward Gorey macabre","H.R. Giger dark surreal"],
+    details: ["stone gargoyles","ivy-covered walls","flickering candles","cobwebs","stained glass","iron candelabras","old leather books","dust motes in light","carved stone effigies","rusted iron chains","velvet drapes","marble floors","rose petals","skull motifs","heraldic banners"]
+  },
+  postapocalyptic: {
+    subjects: ["abandoned highway with rusted cars","lone survivor in gas mask","overgrown city ruins","makeshift settlement in stadium","raider convoy in desert","child scavenging in supermarket","mutant creature in fog","radio tower in wasteland","greenhouse in bunker","horseman on empty road","flooded city with boats","tribe around campfire","broken statue in field","wind turbine still turning","library with scavenged books","mechanic repairing old truck","watchtower in junkyard","forest reclaiming suburbia","solar panel on ruined roof","fisherman on collapsed bridge","survivor's garden in rubble","convoy crossing desert","child playing with old toy","trader at crossroads market","lighthouse in dead sea","abandoned amusement park","survivor with dog companion","farm in wasteland","underground bunker entrance","signal fire on hill"],
+    moods: ["desolate","hopeful","harsh","lonely","resilient","bleak","nostalgic","dangerous","quiet","gritty","melancholic","survivalist","wary","weary","determined","sacred"],
+    colors: ["rust orange and ash gray","dusty ochre and faded blue","olive drab and brown","bleached bone and black","toxic green and rust","muted desert palette","concrete gray and moss","faded red and khaki","sunset orange and dust","cold steel and dried blood","sepia wasteland","pale sky and dead grass"],
+    lighting: ["harsh midday sun","dust-filtered golden hour","campfire flicker","overcast gray sky","headlights in fog","lantern in bunker","sunset through broken window","moonlit wasteland","torch in ruins","bioluminescent fungi","first light over ruins","fire glow on faces"],
+    angles: ["wide desolate landscape","low angle hero survivor","through broken window","over the shoulder scout","aerial of ruined city","close-up on worn hands","silhouette against sunset","POV from vehicle","long empty road perspective","intimate campfire shot"],
+    techniques: ["post-apocalyptic concept art","cinematic photography","matte painting","gritty realism","desaturated color","film grain","documentary style","survival photography","wasteland illustration","dystopian concept"],
+    artists: ["Simon Stålenhag tales from the loop","Craig Mullins post-apoc","Maciej Kuciara dystopia","Raphael Lacoste concept","Sparth art direction","Victor Adame Minguez","Pascal Campit intimate","Jamie Hawkesworth documentary","Michael Kutsche character","Jordi Solanes gritty"],
+    details: ["rusted metal","overgrown vegetation","broken signs","dust in the air","makeshift repairs","scavenged gear","worn boots","faded tattoos","hand-drawn maps","canned food piles","bullet casings","faded photographs","improvised weapons","tattered flags","graffiti warnings"]
+  },
+  horror: {
+    subjects: ["abandoned asylum corridor","shadow figure in doorway","creepy doll on chair","foggy cemetery at night","possessed child at window","haunted Victorian house","woods with watching eyes","basement with single bulb","mirror showing wrong reflection","old well in the fog","clown in the dark","abandoned hospital room","crawling hand from floor","empty rocking chair moving","cornfield at midnight","old photograph with stranger","basement stairs descending","child's drawing on wall","fog-covered lake with boat","attic with covered furniture","old church in storm","hall of mirrors","forest with hanging nooses","abandoned carnival","window with face pressed","long dark hallway","blood-stained bathroom","old tv with static figure","graveyard with fresh grave","shadow under the bed"],
+    moods: ["terrifying","unsettling","dread-filled","paranoid","eerie","suffocating","sinister","oppressive","disturbing","haunting","claustrophobic","menacing","uncanny","psychological","visceral","cursed"],
+    colors: ["blood red and black","sickly green and gray","desaturated cold blue","sepia and bruise purple","pale yellow and shadow","bone white and crimson","muddy brown and black","pale flesh and dark red","cold gray and rust","deep violet and black","pale green and ash","dark teal and blood"],
+    lighting: ["single swinging bulb","flickering flashlight","moonlight through broken window","cold blue TV glow","candle in darkness","harsh overhead fluorescent","distant lightning","faint hallway light","red emergency light","shadow with rim light","match flame in dark","bioluminescent glow"],
+    angles: ["Dutch angle tilted","POV from hiding spot","through keyhole","low angle looming figure","extreme close-up on eye","wide empty room with small figure","over-the-shoulder victim","looking up from floor","reflection in mirror","security camera angle"],
+    techniques: ["horror photography","psychological horror","cinematic horror","grainy film look","high contrast chiaroscuro","found footage aesthetic","distorted lens","vignette heavy","desaturated color grade","jump scare composition"],
+    artists: ["Junji Ito horror manga","H.R. Giger biomechanical","Clive Barker dark","Bernie Wrightson horror","Zdzisław Beksiński surreal","Mike Mignola shadows","Stephen Gammell Scary Stories","Les Edwards horror cover","Gerald Brom dark","Kentaro Miura dark fantasy","Kazuo Umezzu horror","Ashley Wood horror"],
+    details: ["peeling wallpaper","dust particles in light","cracked mirror","dripping water","old photographs","flickering lights","shadow figures","scratch marks","cobwebs","rust stains","handprints on glass","old newspapers","broken toys","faded blood","single footprint"]
+  },
+  pixelart: {
+    subjects: ["8-bit hero with sword","pixel forest with hidden path","retro space shooter scene","pixel village at night","dungeon with treasure chest","pixel art dragon boss","retro platformer level","pixel city skyline","space invaders formation","pixel art castle siege","16-bit RPG party","pixel ocean with pirate ship","retro racing game track","pixel art tavern interior","cyberpunk pixel city","pixel wizard casting spell","retro fighting game arena","pixel art jungle temple","side-scrolling adventure","pixel art moon base","retro puzzle game level","pixel art haunted mansion","8-bit space exploration","pixel art medieval kingdom","retro beat-em-up street","pixel art underwater level","snowy pixel village","pixel art volcano level","retro bonus stage","pixel art sky kingdom"],
+    moods: ["nostalgic","playful","adventurous","cheerful","mysterious","epic","cozy","retro","energetic","whimsical","heroic","challenging","dreamy","arcade","magical","quirky"],
+    colors: ["NES limited palette","Game Boy 4-shade green","SNES vibrant palette","16-bit vivid colors","CGA 4-color","Commodore 64 palette","Amiga pastel","neon arcade palette","earthy RPG palette","cyberpunk neon pixel","sunset pixel gradient","forest green pixel palette"],
+    lighting: ["pixel-perfect shading","dithered gradients","limited palette lighting","rim light pixel","glow effect pixel","cel-shaded pixel","flat color with shadow","highlight pixel dots","animated light flicker","simple gradient sky"],
+    angles: ["side-scrolling view","top-down RPG view","isometric pixel","45-degree perspective","first-person dungeon","platformer side view","overworld map view","diagonal shooter angle","close-up portrait sprite","wide landscape pixel"],
+    techniques: ["16x16 pixel art","32x32 sprite","64x64 detailed pixel","128x128 scene","limited color palette","dithering technique","sub-pixel animation","tile-based design","sprite sheet style","pixel perfect shading"],
+    artists: ["Studio MDHR Cuphead style","Toby Undertale aesthetic","Mobius Final Fantasy pixel","Octopath Traveler HD-2D","Celeste pixel art","Shovel Knight style","Dead Cells aesthetic","Hyper Light Drifter look","Stardew Valley charm","Terraria sprite","Fez perspective","Eastsideco pixel"],
+    details: ["dithered shadows","animated sprite frames","pixel-perfect outlines","limited palette shading","tile-based terrain","sprite highlights","parallax scrolling layers","chunky pixel fonts","retro UI elements","power-up icons","health bar pixel","mini-map corner"]
+  },
+  watercolor: {
+    subjects: ["wildflower meadow in bloom","coastal village at dawn","quiet street after rain","botanical flower study","mountain landscape in mist","child running through field","old farmhouse with garden","paris café terrace","japanese garden with bridge","lavender field at sunset","forest path in autumn","seascape with sailboats","country cottage with roses","venice canal with gondola","cherry blossom branch","tuscany hillside","london street in fog","provence market scene","bamboo forest path","old bookshop window","morning coffee still life","bird on flowering branch","countryside picnic","rainy window with drops","old bicycle with flowers","harbor at golden hour","field of sunflowers","snow-covered village","garden gate in spring","lighthouse on cliff"],
+    moods: ["gentle","dreamy","nostalgic","serene","whimsical","romantic","peaceful","tender","poetic","airy","contemplative","soft","intimate","flowing","light","evocative"],
+    colors: ["soft pastel palette","muted earth tones","dusty rose and sage","sky blue and cream","lavender and mint","warm ochre and blue","pale yellow and pink","sea green and sand","peach and powder blue","sage and terracotta","soft gray and blush","watercolor sky gradient"],
+    lighting: ["soft diffused daylight","gentle morning light","golden hour glow","overcast soft light","dappled tree light","hazy afternoon sun","misty dawn light","warm window light","reflected water light","subtle sunset glow"],
+    angles: ["eye-level intimate","slightly elevated view","close-up botanical","wide landscape","through garden gate","looking down path","window frame view","over the shoulder","low ground level","soft focus background"],
+    techniques: ["wet-on-wet watercolor","dry brush texture","color bleeding","salt texture effect","loose brushstrokes","transparent washes","negative painting","glazing layers","splatter technique","pencil and watercolor"],
+    artists: ["Winslow Homer watercolor","John Singer Sargent","Paul Cézanne watercolor","Georgia O'Keeffe floral","Albrecht Dürer botanical","Beatrix Potter illustration","Eleanor Fortescue-Brickdale","Charles Reid watercolor","Joseph Zbukvic mood","Alvaro Castagnet loose","Amanda Clark botanical","Billy Showell delicate"],
+    details: ["visible paper texture","soft color bleeds","loose brushstrokes","pencil underdrawing","white of paper showing","wet edges","granulation texture","delicate line work","faded washes","splatter marks","layered transparency","organic shapes"]
+  },
+  ukiyoe: {
+    subjects: ["great wave off kanagawa","geisha under cherry blossoms","samurai in battle stance","mount fuji at sunrise","kabuki actor in costume","courtesan in rain","carp swimming upstream","bridge in snow","dragon in clouds","fox spirit in forest","moon over sumida river","plum blossom branch","thunder god Raijin","fisherman at dawn","tea ceremony scene","warrior with katana","crane in flight","autumn maple leaves","festival procession","bamboo grove path","courtesan with umbrella","tiger in bamboo","winter landscape with travelers","cherry blossom viewing","koi pond with bridge","demon slayer scene","bird on pine branch","geisha applying makeup","samurai under full moon","wave crashing on rocks"],
+    moods: ["serene","dramatic","elegant","contemplative","majestic","poetic","timeless","flowing","mysterious","heroic","tranquil","stylized","graceful","mythical","seasonal","refined"],
+    colors: ["indigo and white","vermillion and black","sakura pink and sky blue","gold leaf and deep blue","matcha green and cream","persimmon orange and indigo","plum purple and gold","wisteria lavender and gray","pine green and ivory","autumn maple red and gold","winter snow white and ink","sea foam and deep blue"],
+    lighting: ["flat stylized light","soft gradient sky","rim light on figures","moonlit silver","morning mist glow","sunset warm gradient","diffused overcast","candlelight warm","reflected water light","dappled through branches"],
+    angles: ["asymmetric composition","diagonal dynamic","bird's eye landscape","low angle hero","through circular window","negative space heavy","overlapping planes","close-up on detail","wide panoramic","tilted horizon"],
+    techniques: ["woodblock print style","ukiyo-e flat color","bokashi gradient","key block line work","traditional Japanese print","washi paper texture","sumi-e ink wash","flat color blocks","traditional perspective","nishi-e color print"],
+    artists: ["Hokusai great wave style","Hiroshige landscape","Utamaro bijin-ga","Sharaku actor portrait","Kuniyoshi warrior","Yoshitoshi moon series","Sesshū ink landscape","Hasui Kawase shin-hanga","Gigayo night scenes","Eishi courtesan","Sekien yokai","modern ukiyo-e revival"],
+    details: ["woodgrain texture","visible brushstrokes","flat color areas","strong outlines","cloud patterns","wave patterns","cherry blossom petals","traditional patterns","kanji calligraphy","red artist seal","faded paper tone","asymmetric balance"]
+  },
+  artdeco: {
+    subjects: ["chrysler building at sunset","art deco ballroom","geometric skyscraper facade","luxury ocean liner deck","flapper dancer in spotlight","grand train station interior","art deco jewelry close-up","radio tower with geometric design","vintage cocktail bar","great gatsby party scene","art deco cinema entrance","geometric patterned floor","streamlined locomotive","ziggurat-style skyscraper","sunburst mirror on wall","luxury hotel lobby","vintage airplane interior","art deco poster design","geometric stained glass","chrome and glass elevator","art deco swimming pool","jazz club with neon","vintage perfume bottle","art deco clock tower","rooftop garden party","art deco theater marquee","luxury penthouse view","streamline moderne diner","gold-leaf ceiling detail","art deco bank vault door"],
+    moods: ["glamorous","opulent","geometric","sleek","metropolitan","jazz-age","luxurious","streamlined","confident","cinematic","extravagant","timeless","elegant","deco","grand","modernist"],
+    colors: ["gold and jet black","emerald and brass","burgundy and champagne","turquoise and silver","black chrome and pearl","sapphire and gold","rose gold and onyx","creme and copper","oxblood and ivory","jade and charcoal","cobalt and bronze","champagne and ebony"],
+    lighting: ["marquee glow","chandelier sparkle","spotlight sweep","warm tungsten pools","sunburst through blinds","rim-light silhouette","mirror-reflected light","city glow through tall windows","neon jazz sign","backlit frosted glass","gleaming chrome highlights","golden lobby light"],
+    angles: ["towering low angle up the facade","symmetrical one-point corridor","radial sunburst composition","profile silhouette in doorway","bird's eye of marquee pattern","diagonal streamline composition","reflection in polished floor","through geometric window grille","wide grand interior","close-up on ornament"],
+    techniques: ["art deco poster print","gouache illustration","screenprint flat color","vintage travel poster style","airbrushed glamour","gold-leaf accented illustration","precisionist painting","architectural rendering","deco engraving","cubist-influenced geometry"],
+    artists: ["Tamara de Lempicka style","Erte elegance","Cassandre posters","George Barbier fashion plates","Coles Phillips negative space","Rockwell Kent deco","Jean Dupas murals","Paul Colin posters","William Van Alen architecture","Erté fashion illustration"],
+    details: ["sunburst motifs","stepped ziggurat forms","chevron patterns","brass inlays","frosted glass shades","terrazzo marble","streamlined chrome trim","fan-shaped alcoves","elevator grille doors","geometric friezes","gilded moldings","polished lacquer surfaces"]
+  },
+  lovecraftian: {
+    subjects: ["cthulhu rising from the sea","forgotten underwater city","mad scholar reading necronomicon","tentacled horror in fog","non-euclidean architecture","deep one hybrid fisherman","eldritch portal in sky","ancient stone temple ruins","shoggoth in the sewer","mountain of madness expedition","cultists in ritual circle","cosmic entity beyond stars","haunted lighthouse on cliff","abandoned arctic research base","thing that should not be","dreamlands gateway","elder thing fossil","color out of space meteor","innsmouth foggy harbor","yog-sothoth sphere cluster","dagon temple undersea","madness in the eyes","cyclopean stone ruins","star spawn awakening","forbidden manuscript page","thing crawling from well","cosmic void with eyes","ancient one sleeping","geometry that hurts to see","lighthouse keeper's descent"],
+    moods: ["cosmic","incomprehensible","dread-inducing","insane","ancient","alien","oppressive","forbidden","vast","mind-shattering","primordial","unnamable","haunting","blasphemous","otherworldly","profound"],
+    colors: ["sickly green and black","deep sea teal and void","eldritch purple and black","blood red and cosmic blue","bioluminescent cyan","fog gray and bruise purple","non-euclidean impossible colors","deep ocean black and green","ancient stone gray","cosmic void with starlight","pale yellow and shadow","ichor green and rust"],
+    lighting: ["single lantern in fog","bioluminescent glow","cold moonlight","impossible light angles","distant lighthouse beam","underwater shaft of light","ritual candlelight","cosmic radiance","flickering torch","eerie green glow","starlight on black water","light that shouldn't exist"],
+    angles: ["looking up at massive entity","impossible geometry","extreme wide cosmic scale","through cracked doorway","dutch angle madness","worm's eye towering horror","reflection in dark water","over the shoulder scholar","from below the water","disorienting tilted horizon"],
+    techniques: ["cosmic horror illustration","eldritch concept art","dark surrealism","weird fiction cover art","pulp horror style","matte painting","dark fantasy","vintage horror illustration","psychological horror","surrealist nightmare"],
+    artists: ["H.P. Lovecraft aesthetic","H.R. Giger biomechanical","Zdzisław Beksiński surreal","Junji Ito cosmic horror","Berserk dark fantasy","Ian Miller dark landscape","Wayne Barlowe demonic","John Coulthart decadent","Thomas Ott horror","Bernie Wrightson horror","Gahan Wilson weird","Lee Brown Coye pulp"],
+    details: ["tentacles","too many eyes","non-euclidean geometry","ancient runes","fog and mist","slimy textures","impossible angles","cyclopean stones","forbidden books","mad scrawled notes","fish-like features","cosmic symbols","decay and age","unseen watchers","whispers in dark"]
+  },
+  darkacademia: {
+    subjects: ["old university library at night","student reading by candlelight","ivy-covered gothic building","secret society meeting","ancient manuscript close-up","rainy campus quad","classical statue in library","philosophy seminar in wood-paneled room","antique globe in study","quill pen and inkwell","stack of leather-bound books","rain-streaked window with books","tweed jacket on chair","classical architecture column","fountain in autumn courtyard","chess game in progress","candlelit desk with papers","old typewriter with manuscript","museum with classical busts","autumn forest path to campus","coffee cup and open book","blackboard with chalk equations","vintage map on wall","grand piano in hall","scholar walking in rain","cathedral-like reading room","old telescope in study","fountain pen writing letter","stack of letters with wax seal","fireplace with leather armchair"],
+    moods: ["melancholic","scholarly","nostalgic","contemplative","romantic","intellectual","wistful","elegant","introspective","timeless","quiet","poetic","refined","bittersweet","studious","atmospheric"],
+    colors: ["burgundy and forest green","brown leather and cream","navy and gold","charcoal and ivory","deep plum and bronze","muted earth tones","oxblood and parchment","hunter green and tan","coffee brown and beige","slate and burgundy","aged paper yellow","midnight blue and brass"],
+    lighting: ["warm candlelight","desk lamp glow","window light on rainy day","fireplace flicker","soft library light","golden hour through tall windows","single bulb in dark room","overcast natural light","lamp-lit study","dappled autumn light","morning light on books","chandelier warm glow"],
+    angles: ["intimate close-up","through bookshelf","over-the-shoulder reading","low angle of grand room","detail shot on hands","wide atmospheric room","window frame composition","desk-level POV","looking up at tall shelves","reflection in window"],
+    techniques: ["film photography aesthetic","35mm film grain","moody portrait style","editorial photography","cinematic still","soft focus","natural light photography","vintage film look","dark academia aesthetic","Kodak Portra tones"],
+    artists: ["Wes Anderson symmetry","Guillermo del Toro gothic","Sofia Coppola atmosphere","Terrence Malick light","Roger Deakins cinematography","Edward Hopper mood","Vilhelm Hammershoi interior","Giovanni Battista Piranesi","John Singer Sargent portrait","André Kertész photography","Saul Leiter color","Vivian Maier street"],
+    details: ["leather-bound books","candle wax drips","ink stains","autumn leaves","reading glasses","tweed texture","brass accents","fountain pen","wax seal","old photographs","chalk dust","dust motes in light","worn pages","pressed flowers","handwritten notes"]
+  },
+  cottagecore: {
+    subjects: ["cottage garden in bloom","baking bread in rustic kitchen","picnic under apple tree","picking wildflowers in meadow","tea party in garden","old farmhouse with chickens","mushroom foraging in forest","cottage with thatched roof","jam making on wood stove","reading by window with cat","herb garden at sunrise","bicycle with basket of flowers","cottage porch with rocking chair","butterfly garden path","sewing by candlelight","picking berries in summer","cottage kitchen with copper pots","flower pressing in book","morning coffee on porch","country market stall","goat in wildflower field","baking pies in oven","cottage library with ladder","fishing in small pond","knitting by fireplace","apple orchard in autumn","cottage window with curtains","gathering eggs from henhouse","wildflower bouquet on table","rainy day reading nook"],
+    moods: ["cozy","wholesome","peaceful","nostalgic","gentle","idyllic","warm","simple","romantic","serene","homey","tender","dreamy","rustic","charming","pastoral"],
+    colors: ["soft sage and cream","dusty rose and butter yellow","lavender and mint","warm terracotta and sky","honey gold and moss","powder blue and peach","strawberry red and leaf","oatmeal and sage","sunflower yellow and blue","apricot and sage green","heather purple and cream","cottage garden palette"],
+    lighting: ["soft morning light","golden hour glow","warm kitchen light","dappled garden light","candlelight evening","window light on rainy day","lantern warm glow","fireplace flicker","afternoon sun through trees","misty dawn light","soft overcast","lamp-lit cozy room"],
+    angles: ["intimate close-up","eye-level garden path","through window frame","over-the-shoulder crafting","low angle flowers","wide cottage exterior","table-level still life","porch view of garden","close-up on hands working","bird's eye picnic"],
+    techniques: ["soft illustration","watercolor style","storybook illustration","warm photography","film photography aesthetic","pastel illustration","folk art style","Beatrix Potter inspired","vintage photography","cottagecore aesthetic"],
+    artists: ["Beatrix Potter illustration","Kate Greenaway vintage","Jessica Roux floral","Kelly McKernan dreamy","Helen Dardik folk art","Lotte Reiniger silhouette","Tove Jansson moomin","Gyo Fujikawa children","E.H. Shepard illustration","Cicely Mary Barker flowers","Maud Lewis folk art","Grandma Moses naive"],
+    details: ["wildflowers","fresh baked bread","knitted blankets","vintage teacups","mason jars","garden tools","wicker baskets","wooden spoons","cotton curtains","stone walls","climbing roses","herb bundles","patchwork quilts","candles","handwritten recipes"]
+  },
+  noir: {
+    subjects: ["detective in trench coat","femme fatale at bar","rainy street at night","smoky jazz club","dimly lit office","alley with single lamp","vintage car in rain","poker game in backroom","courthouse steps at dawn","motel room with venetian blinds","newspaper headline close-up","phone booth at midnight","diner counter at 3am","bridge in fog","train station platform","warehouse with shadows","boxing match in ring","courtroom drama","private eye's desk","nightclub stage","cemetery in rain","rooftop confrontation","barbershop with mirror","police lineup","vintage typewriter","cigarette smoke curling","fedora on coat rack","shadow on wall","gun on desk","last train leaving station"],
+    moods: ["noir","cynical","moody","tense","melancholic","gritty","fatalistic","mysterious","smoky","world-weary","dangerous","romantic","hardboiled","shadowy","atmospheric","brooding"],
+    colors: ["black and white","charcoal and silver","deep shadow and highlight","monochrome with red accent","sepia noir","high contrast B&W","smoke gray and black","ink black and paper white","steel gray and cream","midnight and silver","shadow and rim light","desaturated cool tones"],
+    lighting: ["venetian blind shadows","single desk lamp","neon sign glow","streetlight in rain","cigarette ember","stage spotlight","car headlights in fog","bar light through smoke","flash photography","rim light in darkness","moonlight through window","match flame"],
+    angles: ["low angle hero","Dutch angle tension","through venetian blinds","over-the-shoulder","extreme close-up on eyes","wide shadow-filled room","reflection in mirror","silhouette in doorway","high angle looking down","POV through smoke"],
+    techniques: ["black and white photography","film noir cinematography","high contrast","chiaroscuro","grainy film look","40s studio style","hard lighting","deep shadows","expressionist composition","vintage film aesthetic"],
+    artists: ["Edward Hopper mood","Gordon Parks photography","Weegee crime photography","Dorothea Lange documentary","Man Ray surreal","Bill Brandt shadows","Brassai Paris night","Robert Frank americans","Saul Leiter color noir","Vivian Maier street","Henri Cartier-Bresson","Roy DeCarava mood"],
+    details: ["cigarette smoke","rain on window","venetian blind shadows","wet pavement reflections","fedora and trench coat","whiskey glass","typewriter","newspaper","vintage car","neon signs","shadow patterns","mirror reflections","steam from grates","gun silhouette","match flame"]
+  },
+  psychedelic: {
+    subjects: ["melting landscape","fractal mandala","cosmic third eye","kaleidoscope pattern","liquid rainbow","morphing faces","sacred geometry","astral projection","cosmic mushroom","tie-dye galaxy","transcendent being","infinite tunnel","dissolving reality","cosmic serpent","third eye opening","fractal forest","kaleidoscopic flower","astral plane landscape","cosmic dance","melting clock landscape","sacred geometry mandala","cosmic egg","transcendent light being","fractal dragon","kaleidoscope butterfly","cosmic lotus","dissolving self","infinite spiral","cosmic tree of life","psychedelic poster art"],
+    moods: ["transcendent","mind-expanding","kaleidoscopic","cosmic","trippy","euphoric","surreal","mystical","vibrant","dissolving","infinite","ecstatic","visionary","otherworldly","mind-bending","sacred"],
+    colors: ["full rainbow spectrum","neon psychedelic","acid green and magenta","cosmic purple and orange","sunset tie-dye","liquid rainbow","electric blue and hot pink","kaleidoscope vivid","aurora colors","molten gold and violet","iridescent opal","cosmic nebula colors"],
+    lighting: ["inner light glow","bioluminescent","neon emission","cosmic radiance","prismatic dispersion","aura glow","holographic reflection","liquid light","sacred light","phosphorescent","iridescent shimmer","cosmic light rays"],
+    angles: ["kaleidoscopic symmetry","infinite zoom","impossible perspective","fractal recursion","360-degree spherical","tunnel vision","mandala center","dissolving boundaries","multi-dimensional","overlapping realities"],
+    techniques: ["psychedelic poster art","liquid light show","fractal art","kaleidoscope photography","visionary art","sacred geometry","double exposure","multiple exposure","long exposure light painting","digital fractal generation"],
+    artists: ["Alex Grey visionary","Android Jones digital","Amanda Sage visionary","Robert Venosa cosmic","Paul Laffoley visionary","Victor Moscoso poster","Wes Wilson psychedelic","Rick Griffin poster","Stanley Mouse art","Mati Klarwein cosmic","H.R. Giger surreal","Ernst Fuchs visionary"],
+    details: ["fractal patterns","flowing liquid forms","sacred geometry","third eye imagery","cosmic symbols","morphing shapes","rainbow gradients","infinite recursion","sacred geometry overlays","cosmic dust","energy auras","dissolving boundaries","sacred geometry mandalas","kaleidoscope reflections","visionary light"]
+  },
+  lowpoly: {
+    subjects: ["low poly mountain landscape","geometric forest","low poly city skyline","abstract animal sculpture","low poly ocean waves","geometric crystal formation","low poly character portrait","faceted desert scene","low poly space scene","geometric flower","low poly castle","abstract geometric face","low poly car","faceted tree","low poly underwater scene","geometric bird in flight","low poly robot","abstract geometric landscape","low poly house","faceted gemstone","low poly dragon","geometric sunset","low poly spaceship","abstract geometric animal","low poly waterfall","faceted moon","low poly island","geometric northern lights","low poly volcano","abstract geometric portrait"],
+    moods: ["clean","geometric","modern","playful","minimal","stylized","vibrant","abstract","crisp","digital","futuristic","artistic","sharp","contemporary","bold","graphic"],
+    colors: ["flat shaded gradient","vibrant low poly palette","pastel geometric","sunset gradient faceted","monochrome with accent","neon low poly","earth tone faceted","ocean blue gradient","forest green geometric","desert warm palette","arctic cool faceted","cyberpunk neon low poly"],
+    lighting: ["flat shading","faceted light","gradient shading","rim light geometric","soft ambient","directional light","stylized shadows","glow emission","low poly shadows","gradient sky light","faceted highlights","subtle ambient occlusion"],
+    angles: ["isometric view","three-quarter view","front facing","low angle geometric","bird's eye faceted","profile silhouette","dynamic action pose","symmetrical composition","overlapping planes","abstract perspective"],
+    techniques: ["low poly 3D render","flat shading","faceted modeling","geometric abstraction","blender low poly","polygon art","origami inspired","crystal render","geometric sculpture","digital low poly"],
+    artists: ["low poly art style","geometric abstraction","polygon art","faceted sculpture","blender community","low poly game art","origami design","crystal render style","geometric illustration","digital polygon art","abstract geometric","modern low poly"],
+    details: ["visible polygon edges","flat shaded faces","geometric facets","clean edges","gradient transitions","stylized shadows","crisp lines","minimal detail","bold shapes","clean topology","faceted surfaces","geometric patterns"]
+  },
+  space: {
+    subjects: ["Orion Nebula stellar nursery","supermassive black hole with accretion disk","Saturn's rings backlit by the sun","Europa's ocean glowing through ice cracks","Enceladus geysers against Saturn","methane lakes of Titan at dusk","aurora crown over Jupiter's pole","comet with ion tail grazing the sun","Milky Way core rising over a desert","Andromeda collision preview","binary star sunset over alien dunes","neutron star merger kilonova","protoplanetary disk around a young star","astronaut adrift between galaxies","O'Neill cylinder interior with rivers","Dyson swarm veiling its star","Mars colony during a dust storm","far-side lunar base with Earthrise","rogue planet drifting between stars","spacewalk repairing a solar sail","pulsar beam sweeping the void","red giant seen from a frozen moon","hot Jupiter skimming its star","Kuiper Belt field at sunrise","deep field of ten thousand galaxies","generation ship hollow interior","ringed exoplanet with twin moons","galactic core seen from within","interstellar comet visitor","ion-drive freighter near a nebula","binary black hole dance","terrestrial planet with ring system","solar prominence eruption","space telescope mirror array","alien megastructure silhouette","aurora over an ice moon"],
+    moods: ["sublime","vast","humbling","silent","eternal","cosmic","desolate","radiant","ominous","pristine","hypnotic","solitary","apocalyptic","transcendent","crystalline","awe-inspiring"],
+    colors: ["deep space indigo and starlight gold","nebula teal and rose","infrared false-color palette","H-alpha red and oxygen teal","monochrome starfield with cyan accents","rocket-plume orange against void black","planetarium purple and ultraviolet","Mars copper ochre","ice blue and platinum","green aurora on magnetosphere","supernova amber and shock pink","infrared gold and cold cyan"],
+    lighting: ["single star as harsh key light","Earthshine as soft fill","nebula glow as ambient light","sunrise cresting a planetary limb","ion drive glow","zodiacal light cone","screen glow inside helmet visor","reflected light off ring plane","quasar backlight","cockpit instrument glow","harsh unfiltered sunlight","distant supernova flash"],
+    angles: ["from orbit looking down","from planetary surface looking up","telephoto compression flyby","fisheye from inside helmet","silhouette against ring plane","through cockpit canopy","wide deep-field composition","macro on regolith with stars behind","over the shoulder of astronaut","slow-drift POV","symmetrical airlock shot","through telescope eyepiece"],
+    techniques: ["astrophotography","Hubble deep field style","James Webb infrared look","matte painting","NASA concept art","photorealistic 3D render","long exposure star trails","NASA archive film grain","scientific visualization","cinematic space opera","unreal engine render","retro space program poster"],
+    artists: ["Chesley Bonestell style","Ron Miller space art","Michael Carroll planetscapes","David Aguilar astronomical","NASA JPL visualization","Hubble/ESA press imagery look","Robert McCall optimism","Mark Garlick astro-art","Mel Grant spacescapes","Lucy West astra","Don Davis space art","Pablo Carlos Budassi scale"],
+    details: ["dust lanes silhouetting stars","lens flare from distant sun","micrometeorite pitting on hull","condensation on visor","star trails","frozen volatiles glinting","faint distant galaxies in background","thruster plume","antenna silhouettes","sensor bloom from sun glare","thermal blanket crinkles","faint constellation lines"]
+  },
+  vaporwave: {
+    subjects: ["pink marble statue bust","endless sunset grid horizon","palm tree with CRT sun","abandoned shopping mall with fountain","VHS static god","1990s computer desktop","dolphin in a neon pool","roman column ruins on a beach","floppy disk tower","virtual plaza at dusk","windows 95 dreamscape","lone vending machine at night","hotel lobby with palm shadows","tropical island with pool tiles","greek statue wearing sunglasses","payphone under pink neon","mall escalator to nowhere","CD reflection close-up","stack of retro televisions","fuji tape and palm","digital ocean with checkerboard","smoking statue with cigarette","neon torii gate on the water","airport departure board glitch","inflatable pool with floating objects","screensaver maze","arcade carpet pattern","sunset over a data center","mannequin in a store window","vaporwave pyramid in the clouds"],
+    moods: ["dreamy","nostalgic","surreal","melancholic","chill","hypnotic","artificial","lonely","ironic","liminal","dissociative","faded","cosmic","tropical","nocturnal","eerie"],
+    colors: ["hot pink and cyan","pastel purple and teal","magenta and turquoise","lavender and mint","sunset peach and violet","miami neon","washed lavender and chrome","bubblegum and deep blue","rose and seafoam","candy gradient","vaporwave sunset gradient","iridescent pearl"],
+    lighting: ["CRT glow","neon tube light","pink ambient haze","sunset gradient backlight","screen flicker","pool reflection caustics","hazy bloom","chrome specular highlights","soft magenta fog","teal rim light","static glow","tropical dusk light"],
+    angles: ["symmetrical centered","endless corridor perspective","low angle bust shot","flat 2D collage","fisheye mall shot","top-down grid","profile silhouette against sun","through glass reflection","wide surreal landscape","isometric pool view"],
+    techniques: ["vaporwave aesthetic","VHS degradation","scanlines and glitch","3D render with chrome","airbrush gradient","datamosh","VHS tape art","collage composition","low poly retro render","chromatic aberration","1990s CGI look","poster art"],
+    artists: ["vaporwave collective","Hajime Sorayama chrome","David Rudnick typography","Beeple nostalgic","Nam June Paik TV art","Palm Tree style","Lil Data aesthetic","telepath aesthetic","Vektroid sound","Macintosh Plus cover","Tatsuro Kiuchi calm","James Gilleard retro"],
+    details: ["palm silhouettes","grid horizon line","bust of Apollo","floppy disks","checkerboard floor","glowing window logos","VHS timestamp","chrome text","static noise","roman columns","neon Japanese kanji","fountain tiles","cassette spools","plastic palm leaves","sunset gradient sky"]
+  },
+  underwater: {
+    subjects: ["deep sea hydrothermal vents","whale fall on the abyss floor","coral reef metropolis","giant squid in the midnight zone","bioluminescent jellyfish bloom","sunken city ruins","kelp forest cathedral","manta ray migration","underwater cave with light shafts","shipwreck covered in coral","octopus camouflage display","sea turtle over seagrass","shark silhouette in blue water","polar bear diving under ice","anglerfish in the dark","seahorse in soft coral","giant kelp canopy","rock pool at low tide","mangrove roots underwater","diver among a bait ball","trench with submersible lights","ghost net drifting","iceberg underside","river mouth meeting the sea","sea otter in kelp","moray eel in a crevice","dolphin pod in sunbeams","coral spawning at night","humpback whale and calf","volcanic underwater eruption"],
+    moods: ["abyssal","serene","mysterious","weightless","alien","majestic","eerie","tranquil","ancient","bioluminescent","silent","vast","fragile","hypnotic","cold","wondrous"],
+    colors: ["deep cerulean and turquoise","abyssal black and bio-blue","teal and coral pink","sapphire and aquamarine","emerald water and gold light","indigo and neon cyan","muted green and sand","arctic white and deep blue","magenta coral and cyan","sunbeam yellow and navy","seafoam and driftwood","plankton green and ink"],
+    lighting: ["god rays through water surface","bioluminescent glow","caustic light patterns","deep blue ambient falloff","submersible spotlight","sunbeams from above","soft green murk","diver torch beam","moonlight from the surface","coral fluorescence","volcanic vent glow","dappled surface light"],
+    angles: ["looking up at the surface","diver POV","macro on coral polyps","wide blue water column","top-down over reef","through a porthole","silhouette against light","close-up on creature eye","from inside a cave mouth","slow drift perspective"],
+    techniques: ["underwater photography","macro underwater","blue-water photography","national geographic style","split-level shot","long exposure","HDR underwater","documentary wildlife","bioluminescence capture","cinematic deep sea"],
+    artists: ["David Doubilet underwater","Brian Skerry marine","National Geographic underwater","Alexander Semenov jellyfish","Jason Isley macro","Ellen Cuylaerts shark","Cristobal Serrano","Wyland ocean art","Ernst Haeckel marine plates","Jason deCaires Taylor sculpture"],
+    details: ["floating plankton","bubbles rising","light caustics on the floor","coral polyps","fish school silhouettes","particles in the water","anemone tentacles","sea stars","kelp fronds","sediment clouds","bioluminescent sparks","seaweed drifting"]
+  },
+  mythology: {
+    subjects: ["Zeus hurling a thunderbolt","Athena born from the head of Zeus","Poseidon raising a storm","Hades on his throne of bone","Anubis weighing the heart","Ra sailing the sun barque","Odin on Sleipnir","Thor fishing for the world serpent","Fenrir breaking his chains","Loki shapeshifting","Quetzalcoatl descending","Anansi spinning a web of stories","Amaterasu emerging from the cave","Susanoo slaying Yamata no Orochi","Izanagi and Izanami at the bridge","Krishna playing the flute","Shiva in cosmic dance","Ganesha remover of obstacles","Hanuman leaping to the sun","Sun Wukong defying heaven","Nephthys in the duat","Bastet as a cat goddess","Cerberus at the gate","the Fates spinning the thread","Pegasus taking flight","Medusa's gaze","Icarus falling toward the sea","Prometheus chained to the rock","the Minotaur in the labyrinth","Achilles at the walls of Troy"],
+    moods: ["epic","divine","mythic","tragic","heroic","sacred","primordial","dramatic","mystical","awe-inspiring","fatalistic","transcendent","furious","solemn","legendary","ethereal"],
+    colors: ["gold and marble white","olympus blue and ivory","blood red and bronze","obsidian and ember","celestial gold and lapis","storm gray and lightning white","nile green and gold","cosmic purple and star gold","jade and vermilion","ash gray and firelight","wine dark and silver","sun gold and ocean blue"],
+    lighting: ["divine god rays","lightning flash","sacred golden glow","storm light","ember and firelight","moonlit silver","celestial radiance","dawn over Olympus","underworld glow","aurora light","sun disc glare","torchlight on stone"],
+    angles: ["heroic low angle","epic wide composition","looking up at a god","dramatic diagonal","from the heavens downward","symmetrical temple framing","silhouette against the sun","extreme close-up on eyes","over the shoulder of a mortal","vast cosmic scale"],
+    techniques: ["mythological oil painting","fresco style","classical sculpture render","epic concept art","renaissance composition","baroque drama","engraving on stone","marble statue aesthetic","fresco and gold leaf","cinematic mythology"],
+    artists: ["Gustave Doré mythology","Peter Paul Rubens","William-Adolphe Bouguereau","Lawrence Alma-Tadema","Gustav Klimt gold","Frank Frazetta mythic","Boris Vallejo","John William Waterhouse","Michael Parkes","Arthur Rackham myth"],
+    details: ["laurel wreath","lightning bolt","golden armor","marble columns","sacred animals","celestial constellations","ancient greek script","ambrosia and nectar","olympus clouds","sacrificial fire","divine sigils","broken chains","prophecy scrolls","constellations overhead","temple ruins"]
+  }
+};
+
+// ============================================================
+// TEMPLATES (22 variantes « classique »)
+// ============================================================
+const TEMPLATES = [
+  (c) => `${c.subject}, ${c.mood} atmosphere, ${c.lighting}, ${c.colors}, ${c.angle}, ${c.technique}, ${c.detail}, ${c.artist}`,
+  (c) => `A ${c.mood} scene of ${c.subject}, illuminated by ${c.lighting}, ${c.colors} palette, shot from ${c.angle}, featuring ${c.detail}, ${c.technique}, ${c.artist}`,
+  (c) => `Wallpaper art: ${c.subject} — ${c.mood}, ${c.lighting}, ${c.colors}, ${c.angle}, ${c.technique}, ${c.artist}, ${c.detail}, trending on artstation`,
+  (c) => `${c.artist} interpretation of ${c.subject}, ${c.mood} mood, ${c.lighting}, ${c.colors}, ${c.angle}, ${c.technique}, ${c.detail}`,
+  (c) => `${c.subject}, ${c.mood} and ${c.detail}, ${c.lighting}, ${c.colors}, ${c.angle}, ${c.technique}, ${c.artist}, desktop wallpaper`,
+  (c) => `Cinematic wallpaper of ${c.subject}, ${c.mood}, ${c.lighting} with ${c.colors}, ${c.angle}, ${c.technique}, ${c.artist}, ${c.detail}`,
+  (c) => `[${c.mood}] ${c.subject} :: ${c.lighting} :: ${c.colors} :: ${c.angle} :: ${c.technique} :: ${c.artist} :: ${c.detail}`,
+  (c) => `Ultra detailed ${c.technique} of ${c.subject}, ${c.mood}, ${c.lighting}, ${c.colors}, ${c.angle}, ${c.artist}, ${c.detail}, masterpiece`,
+  (c) => `${c.subject} in a ${c.mood} setting, ${c.lighting}, ${c.colors}, ${c.angle}, ${c.technique}, ${c.artist}, ${c.detail}, award-winning wallpaper`,
+  (c) => `Concept art: ${c.subject}, ${c.mood} tone, ${c.lighting}, ${c.colors}, ${c.angle}, ${c.technique}, ${c.artist}, ${c.detail}, highly detailed`,
+  (c) => `${c.subject} / ${c.mood} / ${c.lighting} / ${c.colors} / ${c.angle} / ${c.technique} / ${c.artist} / ${c.detail}`,
+  (c) => `Stunning ${c.technique} wallpaper featuring ${c.subject}, ${c.mood} ambiance, ${c.lighting}, ${c.colors}, ${c.angle}, ${c.artist}, ${c.detail}`,
+  (c) => `${c.subject}, ${c.mood}, ${c.lighting}, ${c.colors}, ${c.angle}, ${c.technique}, ${c.artist}, ${c.detail}, intricate details`,
+  (c) => `A breathtaking ${c.mood} depiction of ${c.subject}, ${c.lighting}, ${c.colors}, ${c.angle}, ${c.technique}, ${c.artist}, ${c.detail}`,
+  (c) => `${c.subject} rendered in ${c.technique}, ${c.mood} vibe, ${c.lighting}, ${c.colors}, ${c.angle}, ${c.artist}, ${c.detail}`,
+  (c) => `${c.artist} inspired ${c.technique} wallpaper of ${c.subject}, ${c.mood}, ${c.lighting}, ${c.colors}, ${c.angle}, ${c.detail}`,
+  (c) => `Immersive ${c.subject} scene, ${c.mood}, ${c.lighting}, ${c.colors}, ${c.angle}, ${c.technique}, ${c.artist}, ${c.detail}, ultra high resolution`,
+  (c) => `${c.subject} — ${c.mood} mood, ${c.lighting}, ${c.colors} color scheme, ${c.angle}, ${c.technique} technique, ${c.artist} style, ${c.detail}`,
+  (c) => `Wallpaper: "${c.subject}" | ${c.mood} | ${c.lighting} | ${c.colors} | ${c.angle} | ${c.technique} | ${c.artist} | ${c.detail}`,
+  (c) => `In a ${c.mood} world, ${c.subject}, bathed in ${c.lighting}, ${c.colors} tones, ${c.angle}, ${c.technique}, ${c.artist}, ${c.detail}`,
+  (c) => `${c.subject} (${c.mood}) — ${c.lighting}, ${c.colors}, ${c.angle}, ${c.technique}, ${c.artist}, ${c.detail}`,
+  (c) => `Create a ${c.mood} wallpaper of ${c.subject}, with ${c.lighting}, using ${c.colors}, composed from ${c.angle}, in ${c.technique} style by ${c.artist}, including ${c.detail}`
+];
+
+// ============================================================
+// FORMATS DE PROMPT
+// ============================================================
+const FORMATS = {
+  classic: { label: "Classique", fn: (c) => TEMPLATES[Math.floor(rand() * TEMPLATES.length)](c) },
+  tags: { label: "Tags SD", fn: (c) => `${c.subject}, ${c.mood}, ${c.lighting}, ${c.colors}, ${c.angle}, ${c.technique}, ${c.artist}, ${c.detail}, masterpiece, best quality` },
+  prose: { label: "Prose", fn: (c) => `A ${c.mood} ${c.technique} artwork depicting ${c.subject}, bathed in ${c.lighting}. The scene uses a ${c.colors} palette, composed from ${c.angle}, featuring ${c.detail}. In the style of ${c.artist}.` },
+  weighted: { label: "Pondéré", fn: (c) => `(${c.subject}:1.3), (${c.mood}:1.1), (${c.lighting}:1.1), (${c.colors}:1.0), (${c.angle}:1.0), (${c.technique}:1.1), (${c.artist}:1.0), (${c.detail}:1.0)` }
+};
+
+// ============================================================
+// MÉTADONNÉES DES STYLES
+// ============================================================
+const STYLE_META = {
+  christmas:      { name: "Noël",           emoji: "🎄", hue: 150, isNew: true },
+  cyberpunk:      { name: "Cyberpunk",      emoji: "🌃", hue: 305 },
+  fantasy:        { name: "Fantasy",        emoji: "🐉", hue: 270 },
+  scifi:          { name: "Sci-Fi",         emoji: "🚀", hue: 210 },
+  space:          { name: "Espace",         emoji: "🌌", hue: 250, isNew: true },
+  nature:         { name: "Nature",         emoji: "🌲", hue: 140 },
+  abstract:       { name: "Abstract",       emoji: "🔷", hue: 190 },
+  minimal:        { name: "Minimal",        emoji: "⬜", hue: 220 },
+  anime:          { name: "Anime",          emoji: "🌸", hue: 330 },
+  retro:          { name: "Retro",          emoji: "📼", hue: 20 },
+  steampunk:      { name: "Steampunk",      emoji: "⚙️", hue: 35 },
+  solarpunk:      { name: "Solarpunk",      emoji: "🌱", hue: 100 },
+  gothic:         { name: "Gothic",         emoji: "🦇", hue: 285 },
+  postapocalyptic:{ name: "Post-Apoc",      emoji: "☢️", hue: 80 },
+  horror:         { name: "Horror",         emoji: "🩸", hue: 355 },
+  pixelart:       { name: "Pixel Art",      emoji: "👾", hue: 160 },
+  watercolor:     { name: "Watercolor",     emoji: "🎨", hue: 200 },
+  ukiyoe:         { name: "Ukiyo-e",        emoji: "🌊", hue: 222 },
+  artdeco:        { name: "Art Déco",       emoji: "✨", hue: 45 },
+  lovecraftian:   { name: "Lovecraft",      emoji: "🐙", hue: 170 },
+  darkacademia:   { name: "Dark Academia",  emoji: "📚", hue: 25 },
+  cottagecore:    { name: "Cottagecore",    emoji: "🧺", hue: 90 },
+  noir:           { name: "Noir",           emoji: "🕵️", hue: 225 },
+  psychedelic:    { name: "Psychedelic",    emoji: "🌀", hue: 320 },
+  lowpoly:        { name: "Low Poly",       emoji: "🔺", hue: 180 },
+  vaporwave:      { name: "Vaporwave",      emoji: "🌴", hue: 310, isNew: true },
+  underwater:     { name: "Sous-marin",     emoji: "🐋", hue: 195, isNew: true },
+  mythology:      { name: "Mythologie",     emoji: "⚡", hue: 50,  isNew: true }
+};
+
+const COMP_LABELS = {
+  subject: "Sujet", mood: "Ambiance", color: "Couleurs", lighting: "Lumière",
+  angle: "Angle", technique: "Technique", artist: "Artiste", detail: "Détail"
+};
+
+// ============================================================
+// ÉTAT GLOBAL + PERSISTANCE
+// ============================================================
+let currentStyle = "cyberpunk";
+let pools = {};
+let recent = {};
+let signatures = {};
+let totalGenerated = 0;
+let totalRejected = 0;
+let sessionPrompts = [];
+let lastBatchIds = [];
+let batchCount = 1;
+let ratioSuffix = "";
+let qualitySuffix = ", wallpaper 4K UHD";
+let momentSuffix = "";
+let detailSuffix = "";
+let formatKey = "classic";
+let seedValue = null;
+let prng = null;
+let showFavoritesOnly = false;
+
+const RECENT_WINDOW = 10;
+const MAX_RETRY = 25;
+const STORAGE_KEY = "wallpaper_generator_v6";
+const THEME_KEY = "wpg6_theme";
+
+// ============================================================
+// UTILITAIRES
+// ============================================================
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, (m) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+}
+
+function uid() {
+  return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function rand() { return prng ? prng() : Math.random(); }
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickFromPool(style, category) {
+  if (!pools[style][category] || pools[style][category].length === 0) {
+    pools[style][category] = shuffle(DATA[style][category]);
+  }
+  return pools[style][category].pop();
+}
+
+function signature(c) {
+  return [c.subject, c.mood, c.color, c.artist, c.lighting]
+    .map((s) => String(s).toLowerCase().trim()).join('|');
+}
+
+function freshnessScore(c, style) {
+  const r = recent[style] || [];
+  let score = 0;
+  for (const comp of r) {
+    if (comp.subject === c.subject) score++;
+    if (comp.mood === c.mood) score++;
+    if (comp.color === c.color) score++;
+    if (comp.artist === c.artist) score++;
+    if (comp.lighting === c.lighting) score++;
+    if (comp.angle === c.angle) score++;
+    if (comp.technique === c.technique) score++;
+  }
+  return score;
+}
+
+function saveState() {
+  const state = {
+    currentStyle, totalGenerated, totalRejected, sessionPrompts,
+    batchCount, ratioSuffix, qualitySuffix, momentSuffix, detailSuffix,
+    formatKey, seedValue, showFavoritesOnly, timestamp: Date.now()
+  };
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const s = JSON.parse(raw);
+    currentStyle = (s.currentStyle && DATA[s.currentStyle]) ? s.currentStyle : "cyberpunk";
+    totalGenerated = s.totalGenerated || 0;
+    totalRejected = s.totalRejected || 0;
+    sessionPrompts = Array.isArray(s.sessionPrompts) ? s.sessionPrompts : [];
+    batchCount = s.batchCount || 1;
+    ratioSuffix = s.ratioSuffix || "";
+    qualitySuffix = (s.qualitySuffix === undefined) ? ", wallpaper 4K UHD" : s.qualitySuffix;
+    momentSuffix = s.momentSuffix || "";
+    detailSuffix = s.detailSuffix || "";
+    formatKey = FORMATS[s.formatKey] ? s.formatKey : "classic";
+    seedValue = (s.seedValue === null || s.seedValue === undefined) ? null : (s.seedValue >>> 0);
+    showFavoritesOnly = !!s.showFavoritesOnly;
+    if (seedValue !== null) prng = mulberry32(seedValue);
+    return true;
+  } catch (e) {
+    console.warn("Impossible de charger l'état :", e);
+    return false;
+  }
+}
+
+// ============================================================
+// GÉNÉRATION
+// ============================================================
+function buildComponents(style) {
+  return {
+    subject: pickFromPool(style, 'subjects'),
+    mood: pickFromPool(style, 'moods'),
+    color: pickFromPool(style, 'colors'),
+    lighting: pickFromPool(style, 'lighting'),
+    angle: pickFromPool(style, 'angles'),
+    technique: pickFromPool(style, 'techniques'),
+    artist: pickFromPool(style, 'artists'),
+    detail: pickFromPool(style, 'details')
+  };
+}
+
+function generatePrompt() {
+  let attempts = 0, components, sig, fresh;
+  while (attempts < MAX_RETRY) {
+    components = buildComponents(currentStyle);
+    sig = signature(components);
+    fresh = freshnessScore(components, currentStyle);
+    if (!signatures[currentStyle].has(sig) && fresh <= 2) break;
+    attempts++;
+    totalRejected++;
+  }
+  signatures[currentStyle].add(sig);
+  recent[currentStyle].unshift(components);
+  if (recent[currentStyle].length > RECENT_WINDOW) recent[currentStyle].pop();
+
+  const fmt = FORMATS[formatKey] || FORMATS.classic;
+  let prompt = fmt.fn(components);
+  // Retire un éventuel suffixe de qualité déjà présent dans le template.
+  prompt = prompt.replace(/,?\s*\b(wallpaper\s*4K(?:\s*UHD)?|8K(?:\s*UHD)?|HD\s*wallpaper)\b\s*$/i, "").trim();
+  prompt += ratioSuffix + momentSuffix + detailSuffix + qualitySuffix;
+
+  const neg = document.getElementById('negInput').value.trim();
+  if (neg) prompt += `\nNegative: ${neg}`;
+
+  totalGenerated++;
+
+  const entry = {
+    id: uid(), prompt, style: currentStyle, format: formatKey,
+    seed: seedValue, timestamp: new Date().toISOString(),
+    components, favorite: false
+  };
+  sessionPrompts.unshift(entry);
+  saveState();
+  return entry;
+}
+
+function generate() {
+  const out = [];
+  for (let i = 0; i < batchCount; i++) out.push(generatePrompt());
+  lastBatchIds = out.map((p) => p.id);
+  renderSessionPrompts();
+  updateStats();
+}
+
+function surprise() {
+  randomStyle();
+  generate();
+}
+
+function randomStyle() {
+  const keys = Object.keys(DATA);
+  currentStyle = keys[Math.floor(rand() * keys.length)];
+  renderStyles(document.getElementById('searchBar').value);
+  updateStats();
+  saveState();
+  const m = STYLE_META[currentStyle];
+  showToast(`${m ? m.emoji : '🎨'} ${m ? m.name : currentStyle}`, "success");
+}
+
+// ============================================================
+// UI
+// ============================================================
+function renderStyles(filterText = "") {
+  const grid = document.getElementById('stylesGrid');
+  grid.innerHTML = '';
+  const ft = filterText.trim().toLowerCase();
+
+  for (const style in DATA) {
+    const meta = STYLE_META[style] || { name: style, emoji: '🎨', hue: 260 };
+    if (ft && !meta.name.toLowerCase().includes(ft)) continue;
+
+    const btn = document.createElement('button');
+    btn.className = 'style-btn' + (style === currentStyle ? ' active' : '');
+    btn.innerHTML =
+      `<span class="sb-emoji">${meta.emoji}</span><span class="sb-name">${esc(meta.name)}</span>` +
+      (meta.isNew ? `<span class="sb-new">NEW</span>` : '');
+    btn.onclick = () => {
+      currentStyle = style;
+      renderStyles(document.getElementById('searchBar').value);
+      updateStats();
+      saveState();
+    };
+    grid.appendChild(btn);
+  }
+}
+
+function renderSessionPrompts() {
+  const container = document.getElementById('promptList');
+  const badge = document.getElementById('sessionBadge');
+  const list = showFavoritesOnly ? sessionPrompts.filter((p) => p.favorite) : sessionPrompts;
+
+  badge.textContent = sessionPrompts.length;
+
+  if (list.length === 0) {
+    container.innerHTML = showFavoritesOnly
+      ? `<div class="empty-state"><div class="emoji">☆</div><div class="msg">Aucun favori pour le moment.</div></div>`
+      : `<div class="empty-state"><div class="emoji">🌠</div><div class="msg">Appuie sur <kbd>Espace</kbd> ou clique « Générer »</div></div>`;
+    return;
+  }
+
+  container.innerHTML = list.map((entry) => {
+    const meta = STYLE_META[entry.style] || { name: entry.style, emoji: '🎨', hue: 260 };
+    const fresh = lastBatchIds.includes(entry.id);
+    const comp = entry.components || {};
+    const compTags = Object.keys(comp).map((k) =>
+      `<span class="c"><b>${esc(COMP_LABELS[k] || k)}</b> ${esc(comp[k])}</span>`).join('');
+    const seedTxt = (entry.seed === null || entry.seed === undefined) ? '' : ` · seed ${entry.seed}`;
+    return `
+      <article class="prompt-card ${fresh ? 'fresh' : ''} ${entry.favorite ? 'is-fav' : ''}"
+               style="--hue:${meta.hue}" data-id="${esc(entry.id)}">
+        <div class="pc-head">
+          <span class="pc-style"><span class="pc-dot"></span>${meta.emoji} ${esc(meta.name)}</span>
+          <span class="pc-time">${esc(new Date(entry.timestamp).toLocaleTimeString('fr-FR'))}${esc(seedTxt)}</span>
+          <div class="pc-actions">
+            <button class="icon-btn ${entry.favorite ? 'faved' : ''}" data-action="fav" data-id="${esc(entry.id)}" title="Favori">${entry.favorite ? '★' : '☆'}</button>
+            <button class="icon-btn" data-action="copy" data-id="${esc(entry.id)}" title="Copier">📋</button>
+            <button class="icon-btn danger" data-action="delete" data-id="${esc(entry.id)}" title="Supprimer">🗑️</button>
+          </div>
+        </div>
+        <div class="prompt-text">${esc(entry.prompt)}</div>
+        <details class="pc-details">
+          <summary>Composants</summary>
+          <div class="pc-comp">${compTags}</div>
+        </details>
+      </article>`;
+  }).join('');
+}
+
+function copyPrompt() {
+  if (sessionPrompts.length === 0) { showToast("⚠️ Rien à copier", "error"); return; }
+  copyText(sessionPrompts[0].prompt, "✅ Copié !");
+}
+
+function copyAll() {
+  if (sessionPrompts.length === 0) { showToast("⚠️ Rien à copier", "error"); return; }
+  const text = sessionPrompts.map((p) => p.prompt).join('\n\n---\n\n');
+  copyText(text, `✅ ${sessionPrompts.length} prompts copiés !`);
+}
+
+function copySingle(id) {
+  const entry = sessionPrompts.find((p) => p.id === id);
+  if (entry) copyText(entry.prompt, "✅ Copié !");
+}
+
+function copyText(text, okMsg) {
+  const done = () => showToast(okMsg, "success");
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else {
+    fallbackCopy(text, done);
+  }
+}
+
+function fallbackCopy(text, done) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); done(); }
+  catch (e) { showToast("❌ Copie impossible", "error"); }
+  document.body.removeChild(ta);
+}
+
+function toggleFavorite(id) {
+  const entry = sessionPrompts.find((p) => p.id === id);
+  if (!entry) return;
+  entry.favorite = !entry.favorite;
+  renderSessionPrompts();
+  updateStats();
+  saveState();
+  showToast(entry.favorite ? "★ Ajouté aux favoris" : "☆ Retiré des favoris", "success");
+}
+
+function toggleLastFavorite() {
+  if (sessionPrompts.length === 0) { showToast("⚠️ Aucun prompt", "error"); return; }
+  toggleFavorite(sessionPrompts[0].id);
+}
+
+function deletePrompt(id) {
+  const idx = sessionPrompts.findIndex((p) => p.id === id);
+  if (idx < 0) return;
+  sessionPrompts.splice(idx, 1);
+  if (totalGenerated > 0) totalGenerated--;
+  renderSessionPrompts();
+  updateStats();
+  saveState();
+  showToast("🗑️ Supprimé", "success");
+}
+
+function exportPrompts(format) {
+  if (sessionPrompts.length === 0) { showToast("⚠️ Rien à exporter", "error"); return; }
+
+  const stamp = new Date().toISOString().slice(0, 10);
+  let content, filename, mime;
+
+  if (format === 'json') {
+    content = JSON.stringify(sessionPrompts, null, 2);
+    filename = `prompts_${stamp}.json`;
+    mime = 'application/json';
+  } else if (format === 'csv') {
+    const cell = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const rows = [["index", "style", "format", "seed", "prompt"].map(cell).join(',')];
+    sessionPrompts.forEach((p, i) => {
+      rows.push([i + 1, p.style, p.format || '', p.seed == null ? '' : p.seed, p.prompt].map(cell).join(','));
+    });
+    content = rows.join('\n');
+    filename = `prompts_${stamp}.csv`;
+    mime = 'text/csv';
+  } else {
+    content = sessionPrompts.map((p, i) => `### ${i + 1} [${p.style}]\n${p.prompt}`).join('\n\n');
+    filename = `prompts_${stamp}.txt`;
+    mime = 'text/plain';
+  }
+
+  const blob = new Blob([content], { type: mime + ';charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast(`💾 Exporté : ${filename}`, "success");
+}
+
+function confirmReset() {
+  if (sessionPrompts.length === 0 && totalGenerated === 0) { showToast("⚠️ Session déjà vide", "error"); return; }
+  if (!confirm("Vider toute la session ? Cette action est irréversible.")) return;
+  initPools();
+  totalGenerated = 0;
+  totalRejected = 0;
+  sessionPrompts = [];
+  lastBatchIds = [];
+  renderSessionPrompts();
+  updateStats();
+  saveState();
+  showToast("🔄 Session réinitialisée", "success");
+}
+
+function updateStats() {
+  const meta = STYLE_META[currentStyle] || { name: currentStyle };
+  document.getElementById('currentStyle').textContent = meta.name;
+  document.getElementById('genCount').textContent = totalGenerated;
+  document.getElementById('rejected').textContent = totalRejected;
+  document.getElementById('histCount').textContent = sessionPrompts.length;
+  document.getElementById('favCount').textContent = sessionPrompts.filter((p) => p.favorite).length;
+}
+
+function updateSeedStat() {
+  const stat = document.getElementById('seedStat');
+  const val = document.getElementById('seedVal');
+  if (seedValue === null) { stat.hidden = true; }
+  else { stat.hidden = false; val.textContent = seedValue; }
+}
+
+function showToast(msg, type = "success") {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.className = 'toast show ' + type;
+  clearTimeout(showToast._timer);
+  showToast._timer = setTimeout(() => t.classList.remove('show'), 1900);
+}
+
+function initPools() {
+  for (const style in DATA) {
+    pools[style] = {};
+    for (const cat in DATA[style]) pools[style][cat] = shuffle(DATA[style][cat]);
+    recent[style] = [];
+    signatures[style] = new Set();
+  }
+}
+
+// ============================================================
+// SEED
+// ============================================================
+function randomSeed() {
+  const n = Math.floor(Math.random() * 1e9);
+  document.getElementById('seedInput').value = n;
+  applySeed();
+}
+
+function applySeed() {
+  const raw = document.getElementById('seedInput').value.trim();
+  if (raw === "") {
+    seedValue = null; prng = null;
+    showToast("🎲 Seed désactivée", "success");
+  } else {
+    seedValue = (parseInt(raw, 10) >>> 0);
+    prng = mulberry32(seedValue);
+    showToast(`🎲 Seed ${seedValue} appliquée`, "success");
+  }
+  initPools();
+  updateSeedStat();
+  saveState();
+}
+
+// ============================================================
+// THÈME
+// ============================================================
+function applyTheme(theme) {
+  const valid = ['cosmic', 'catppuccin', 'light'];
+  const t = valid.includes(theme) ? theme : 'cosmic';
+  document.documentElement.setAttribute('data-theme', t);
+  try { localStorage.setItem(THEME_KEY, t); } catch (e) { /* ignore */ }
+  document.querySelectorAll('#themeSwitch button').forEach((b) =>
+    b.classList.toggle('active', b.dataset.theme === t));
+}
+
+// ============================================================
+// MODALES
+// ============================================================
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+// ============================================================
+// CONTROLES
+// ============================================================
+function activateByData(rowId, attr, val) {
+  document.querySelectorAll('#' + rowId + ' .chip').forEach((c) =>
+    c.classList.toggle('active', c.dataset[attr] === val));
+}
+
+function syncControls() {
+  activateByData('batchRow', 'batch', String(batchCount));
+  activateByData('ratioRow', 'ratio', ratioSuffix);
+  activateByData('qualityRow', 'quality', qualitySuffix);
+  activateByData('momentRow', 'moment', momentSuffix);
+  activateByData('detailRow', 'detail', detailSuffix);
+  activateByData('formatRow', 'format', formatKey);
+  document.getElementById('seedInput').value = (seedValue === null) ? '' : seedValue;
+  document.getElementById('favFilter').classList.toggle('active', showFavoritesOnly);
+}
+
+function bindChipRow(rowId, handler) {
+  document.getElementById(rowId).addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if (!chip || !document.getElementById(rowId).contains(chip)) return;
+    document.querySelectorAll('#' + rowId + ' .chip').forEach((c) => c.classList.remove('active'));
+    chip.classList.add('active');
+    handler(chip);
+  });
+}
+
+// ============================================================
+// FOND ÉTOILÉ
+// ============================================================
+function initStarfield() {
+  const cv = document.getElementById('starfield');
+  if (!cv || !cv.getContext) return;
+  const ctx = cv.getContext('2d');
+  let w = 0, h = 0, stars = [], shoot = null;
+
+  function resize() {
+    w = cv.width = window.innerWidth;
+    h = cv.height = window.innerHeight;
+    const count = Math.min(240, Math.floor((w * h) / 9000));
+    stars = Array.from({ length: count }, () => ({
+      x: Math.random() * w, y: Math.random() * h,
+      r: Math.random() * 1.3 + 0.25,
+      a: Math.random() * Math.PI * 2,
+      s: Math.random() * 0.02 + 0.004
+    }));
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function loop() {
+    ctx.clearRect(0, 0, w, h);
+    for (const st of stars) {
+      st.a += st.s;
+      ctx.globalAlpha = 0.3 + Math.abs(Math.sin(st.a)) * 0.7;
+      ctx.fillStyle = '#dfe6ff';
+      ctx.beginPath();
+      ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    if (!shoot && Math.random() < 0.004) {
+      shoot = { x: Math.random() * w * 0.7, y: Math.random() * h * 0.4, len: 120 + Math.random() * 140, life: 1 };
+    }
+    if (shoot) {
+      shoot.x += 7; shoot.y += 3; shoot.life -= 0.02;
+      const g = ctx.createLinearGradient(shoot.x, shoot.y, shoot.x - shoot.len, shoot.y - shoot.len * 0.4);
+      g.addColorStop(0, `rgba(255,255,255,${Math.max(0, shoot.life)})`);
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = g;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(shoot.x, shoot.y);
+      ctx.lineTo(shoot.x - shoot.len, shoot.y - shoot.len * 0.4);
+      ctx.stroke();
+      if (shoot.life <= 0) shoot = null;
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+function setupEventListeners() {
+  document.getElementById('searchBar').addEventListener('input', (e) => renderStyles(e.target.value));
+
+  bindChipRow('batchRow', (c) => { batchCount = parseInt(c.dataset.batch, 10); saveState(); });
+  bindChipRow('ratioRow', (c) => { ratioSuffix = c.dataset.ratio || ""; saveState(); });
+  bindChipRow('qualityRow', (c) => { qualitySuffix = c.dataset.quality || ""; saveState(); });
+  bindChipRow('momentRow', (c) => { momentSuffix = c.dataset.moment || ""; saveState(); });
+  bindChipRow('detailRow', (c) => { detailSuffix = c.dataset.detail || ""; saveState(); });
+  bindChipRow('formatRow', (c) => { formatKey = c.dataset.format || "classic"; saveState(); });
+
+  document.getElementById('themeSwitch').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-theme]');
+    if (b) applyTheme(b.dataset.theme);
+  });
+
+  document.getElementById('favFilter').addEventListener('click', () => {
+    showFavoritesOnly = !showFavoritesOnly;
+    document.getElementById('favFilter').classList.toggle('active', showFavoritesOnly);
+    renderSessionPrompts();
+    saveState();
+  });
+
+  document.getElementById('promptList').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (btn.dataset.action === 'copy') copySingle(id);
+    else if (btn.dataset.action === 'delete') deletePrompt(id);
+    else if (btn.dataset.action === 'fav') toggleFavorite(id);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    const tag = (e.target.tagName || '').toUpperCase();
+    if (tag === 'TEXTAREA' || tag === 'INPUT') return;
+
+    if (e.code === 'Space') { e.preventDefault(); generate(); return; }
+    if (e.key === '?') { e.preventDefault(); document.getElementById('shortcutModal').classList.toggle('show'); return; }
+    if (e.key === '/' ) { e.preventDefault(); document.getElementById('searchBar').focus(); return; }
+    if (e.key === 'c' && (e.ctrlKey || e.metaKey) && !window.getSelection().toString()) { e.preventDefault(); copyPrompt(); return; }
+    if (e.key === 's' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); exportPrompts('txt'); return; }
+    if ((e.key === 'r' || e.key === 'R') && e.shiftKey) { e.preventDefault(); confirmReset(); return; }
+    if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.metaKey) { e.preventDefault(); randomStyle(); return; }
+    if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey) { e.preventDefault(); toggleLastFavorite(); return; }
+  });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  let theme = 'cosmic';
+  try { theme = localStorage.getItem(THEME_KEY) || 'cosmic'; } catch (e) { /* ignore */ }
+  applyTheme(theme);
+
+  initPools();
+  loadState();
+  if (seedValue !== null) prng = mulberry32(seedValue);
+  setupEventListeners();
+  syncControls();
+  renderStyles();
+  renderSessionPrompts();
+  updateStats();
+  updateSeedStat();
+  initStarfield();
+
+  const styleCount = Object.keys(DATA).length;
+  let totalElements = 0;
+  for (const style in DATA) {
+    for (const cat in DATA[style]) totalElements += DATA[style][cat].length;
+  }
+  document.getElementById('styleCountBadge').textContent = styleCount;
+  document.getElementById('tagline').textContent =
+    `${styleCount} styles · ${totalElements.toLocaleString('fr-FR')} éléments · 22 templates · 4 formats · Cosmic Glass`;
+
+  console.log(`🌌 ${styleCount} styles disponibles`);
+  console.log(`📦 ${totalElements} éléments de base`);
+});
+</script>
+</body>
+</html>
